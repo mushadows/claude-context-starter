@@ -16,9 +16,69 @@ Ce projet change ça. Il donne à Claude un **context permanent** : un ensemble 
 - Claude met à jour ses propres notes après chaque session utile
 - Mode professeur pour apprendre n'importe quel sujet avec une vraie pédagogie
 - Synchronisation multi-machine via Git
+- Architecture modulaire : seul le context pertinent est chargé selon ton projet actif
+- 3 hooks automatiques (push, sauvegarde transcript, lint)
+- 6 skills slash-commands (`/etat` `/ctx` `/bilan` `/deploy` `/prof` `/agents`)
+- Template ETAT.md par projet pour reprendre où tu t'es arrêté
 
 **Pour qui ?**
 Pour tout le monde — que tu codes ou non. L'interview initiale adapte le context à ton profil.
+
+---
+
+## Architecture modulaire
+
+### `core.md` — le seul fichier chargé à chaque session
+
+`~/CLAUDE.md` contient une seule ligne : `@dev/my-context/core.md`
+
+`core.md` est court (~100 lignes) et contient :
+- Ton profil (nom, OS, préférences)
+- Les règles d'autonomie
+- La table des modules context (quel `ctx-*.md` charger selon le projet actif)
+- La checklist de début de session
+
+**Avant** : `~/CLAUDE.md` importait 8 fichiers (~20 000 tokens à chaque session).
+**Après** : seul `core.md` est chargé (~500 tokens), les modules sont injectés à la demande.
+
+### `contexts/` — modules chargés selon le projet actif
+
+Chaque fichier `ctx-[nom].md` contient le context d'un projet ou d'un domaine spécifique.
+Claude charge automatiquement le bon module selon le dossier où tu travailles.
+
+```
+contexts/
+├── ctx-dev.md          ← règles de code (à adapter à tes langages)
+├── ctx-[projet].md     ← à créer pour chaque projet actif
+└── README.md           ← comment ajouter un module
+```
+
+### `hooks/` — automatismes transparents
+
+Trois scripts exécutés automatiquement par Claude Code, sans action de ta part :
+
+| Hook | Quand | Ce qu'il fait |
+|---|---|---|
+| `stop.sh` | Après chaque réponse | Pushe `my-context` si des fichiers ont été modifiés |
+| `pre-compact.sh` | Avant compaction | Sauvegarde le transcript dans `~/.claude/session-state/` |
+| `post-edit.sh` | Après chaque Edit/Write | Lance le linter (tsc, go vet, shellcheck) selon l'extension |
+
+### `skills/` — slash-commands disponibles dans Claude
+
+| Commande | Ce qu'elle fait |
+|---|---|
+| `/etat` | Affiche ou crée `ETAT.md` pour le projet courant |
+| `/ctx [module]` | Charge manuellement un module de context |
+| `/bilan` | Clôture de session : résumé + ETAT.md + push |
+| `/deploy [projet]` | Déploiement guidé avec vérifications pré-déploiement |
+| `/prof [matière]` | Génère ou met à jour les cours Obsidian d'une matière |
+| `/agents [type]` | Lance plusieurs subagents en parallèle pour une analyse complexe |
+
+### `templates/` — templates réutilisables
+
+- `etat-template.md` — utilisé par `/etat` pour créer un ETAT.md structuré dans chaque projet
+
+---
 
 ---
 
@@ -266,15 +326,34 @@ Ton context complet sera récupéré depuis GitHub et tu seras immédiatement op
 
 ```
 my-context/
-├── CLAUDE.md           ← Le cerveau : imports + instructions bootstrap
-├── CLAUDE.local.md     ← Ton profil personnel (généré par l'interview)
-├── CONF.md             ← Ta config système (généré + maintenu automatiquement)
-├── PROJECTS.md         ← Tes projets actifs (généré + maintenu automatiquement)
-├── ROUTINES.md         ← Checklists de maintenance (généré selon ton profil)
-├── RULES_GENERIC.md    ← Règles de code génériques (si tu codes)
-├── RULES_LANGAGES.md   ← Règles par langage (si tu codes)
-├── PROFESSOR.md        ← Mode apprentissage pédagogique
-└── install.sh          ← Script d'installation
+├── CLAUDE.md               ← Une ligne : @dev/my-context/core.md
+├── core.md                 ← Context chargé à chaque session (profil, modules, checklist)
+├── contexts/
+│   ├── ctx-dev.md          ← Règles de code (à adapter)
+│   ├── ctx-[projet].md     ← À créer pour chaque projet actif
+│   └── README.md           ← Comment ajouter un module
+├── hooks/
+│   ├── stop.sh             ← Auto-push my-context après réponse
+│   ├── pre-compact.sh      ← Sauvegarde transcript avant compaction
+│   └── post-edit.sh        ← Lint après Edit/Write (tsc, go vet, shellcheck)
+├── skills/
+│   ├── etat.md             ← /etat — ETAT.md du projet courant
+│   ├── ctx.md              ← /ctx — charger un module de context
+│   ├── bilan.md            ← /bilan — clôture de session
+│   ├── deploy.md           ← /deploy — déploiement guidé
+│   ├── prof.md             ← /prof — génération cours Obsidian
+│   └── agents.md           ← /agents — analyse multi-agents en parallèle
+├── templates/
+│   └── etat-template.md    ← Template utilisé par /etat
+├── CLAUDE.local.md         ← Ton profil personnel (généré par l'interview)
+├── CONF.md                 ← Ta config système (généré + maintenu automatiquement)
+├── PROJECTS.md             ← Tes projets actifs (généré + maintenu automatiquement)
+├── ROUTINES.md             ← Checklists de maintenance (généré selon ton profil)
+├── RULES_GENERIC.md        ← Règles de code génériques (si tu codes)
+├── RULES_LANGAGES.md       ← Règles par langage (si tu codes)
+├── PROFESSOR.md            ← Mode apprentissage pédagogique complet
+├── settings-template.json  ← Template settings.json avec hooks configurés
+└── install.sh              ← Script d'installation (hooks + skills + CLAUDE.md)
 ```
 
 ---
