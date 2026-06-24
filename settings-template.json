@@ -1,0 +1,18 @@
+{
+  "permissions": {
+    "defaultMode": "acceptEdits",
+    "allow": ["Bash(*)", "Read(*)", "Edit(*)", "Write(*)", "Glob(*)", "Grep(*)", "WebSearch", "WebFetch(*)"]
+  },
+  "autoCompactEnabled": true,
+  "hooks": {
+    "Stop": [
+      { "matcher": "", "hooks": [{ "type": "command", "command": "~/.claude/hooks/stop.sh" }] }
+    ],
+    "PreCompact": [
+      { "matcher": "", "hooks": [{ "type": "command", "command": "~/.claude/hooks/pre-compact.sh" }] }
+    ],
+    "PostToolUse": [
+      { "matcher": "Edit|Write", "hooks": [{ "type": "command", "command": "~/.claude/hooks/post-edit.sh" }] }
+    ]
+  }
+}
