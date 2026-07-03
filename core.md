@@ -13,11 +13,12 @@ Répondre dans la langue de l'utilisateur. Identifiants de code en anglais.
 
 ## Autonomie
 Exécuter sans demander confirmation. Informer après coup en une ligne.
-- Repo `my-context` : pusher d'office après modification.
-- Tout autre repo : demander confirmation avant push.
+- **Repos perso** : pusher d'office après modification.
+- **Projets scolaires ou sensibles** (marqués dans PROJECTS.md) : JAMAIS de commit/push/add — interdiction absolue. ETAT dans `~/dev/my-context/etat/[projet].md`.
+- **Nouveau repo ou type inconnu** : demander si le projet est scolaire avant tout commit/push.
 
 ## Structure home (NON NÉGOCIABLE)
-Seuls dossiers autorisés à la racine de `~/` : `dev/` `Documents/` `Téléchargements/` (ou `Downloads/`) `VM/` `wallpaper/`
+Seuls dossiers autorisés à la racine de `~/` : `dev/` `Documents/` `Téléchargements/` `VM/` `wallpaper/`
 Seul fichier autorisé : `CLAUDE.md` (les fichiers cachés sont ignorés)
 Tout le reste → `mv ~/Documents/` automatiquement, signaler en une ligne.
 
@@ -45,6 +46,8 @@ Avant de traiter une tâche manuellement, détecter si un skill existant ferait 
 | Demande sur un projet actif sans context chargé | `/ctx [module]` — charger le bon module d'abord |
 | Fin de session avec modifications importantes | `/bilan` — clôture propre + ETAT.md à jour |
 | Déploiement d'un projet | `/deploy [projet]` — workflow guidé avec vérifications |
+| Récap des tâches du jour | `/today` — agrège projets, agenda, dettes |
+| Audit du contexte avant grosse tâche | `/check` — qualité des fichiers, marge contexte, verdict |
 | Demande liée à un cours / apprentissage | `/prof [matière]` — mode prof avec context Obsidian |
 | "Où en est le projet", "reprendre le projet" | `/etat` — lire ETAT.md avant de commencer |
 
@@ -68,17 +71,24 @@ Si accepté : écrire `skills/[nom].md` + symlinker via `bash install.sh` + push
 1. `git -C ~/dev/my-context pull` — informer si mises à jour récupérées
 2. Vérifier que `~/CLAUDE.md` contient `@dev/my-context/core.md` — corriger si absent
 3. Cloner les projets manquants selon PROJECTS.md (voir script dans CLAUDE.local.md §3)
-4. Scanner `~/Téléchargements/` (ou `~/Downloads/`) : cours → `notes/` du vault, TPs → `TP/`, inconnus → `a-trier/`
+4. Scanner `~/Téléchargements/` : cours → `notes/` du vault, TPs → `TP/`, inconnus → `a-trier/`
 5. Vérifier racine `~/` : tout dossier/fichier non autorisé → `mv ~/Documents/`
+6. Si jour du mois ≥ 25 : vérifier revue mensuelle (voir ctx-finance.md ou ROUTINES.md)
 
-Pour les détails d'implémentation bash des étapes 3-5, voir CLAUDE.local.md (chargé sur demande).
+`/today` est disponible à la demande uniquement — ne jamais le lancer automatiquement.
+
+Pour les détails d'implémentation bash des étapes 3-6, voir CLAUDE.local.md (chargé sur demande).
 
 ## Erreurs à ne pas reproduire (critiques)
 - Toujours `git pull` avant de modifier un fichier dans un repo git
 - Symlinks : résoudre avec `readlink -f` avant tout Edit/Write
+- Docker bind mount sur fichier individuel → monter le dossier parent (inode stale si le fichier est recréé)
+- Projets scolaires : vérifier PROJECTS.md avant tout `git commit/push` — interdiction absolue sur les repos marqués scolaires
 
 ## Fichiers context disponibles
 - `CONF.md` — état système (machines, outils, config, problèmes connus)
 - `PROJECTS.md` — projets actifs (repos, stacks, états)
 - `ROUTINES.md` — checklist maintenance mensuelle
 - `CLAUDE.local.md` — profil détaillé, habitudes, erreurs complètes, scripts de session
+- `HOMESERVER.md` — infra homeserver (optionnel — si applicable)
+- `PROFESSOR.md` — mode prof Obsidian (optionnel — si applicable)
