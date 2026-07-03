@@ -1,15 +1,27 @@
 {
+  "model": "claude-sonnet-4-6",
   "permissions": {
     "defaultMode": "acceptEdits",
     "allow": ["Bash(*)", "Read(*)", "Edit(*)", "Write(*)", "Glob(*)", "Grep(*)", "WebSearch", "WebFetch(*)"]
   },
+  "effortLevel": "medium",
+  "advisorModel": "opus",
+  "promptSuggestionEnabled": false,
+  "tui": "fullscreen",
+  "theme": "auto",
   "autoCompactEnabled": true,
   "hooks": {
+    "UserPromptSubmit": [
+      { "matcher": "", "hooks": [{ "type": "command", "command": "~/.claude/hooks/session-start.sh" }] }
+    ],
     "Stop": [
       { "matcher": "", "hooks": [{ "type": "command", "command": "~/.claude/hooks/stop.sh" }] }
     ],
     "PreCompact": [
       { "matcher": "", "hooks": [{ "type": "command", "command": "~/.claude/hooks/pre-compact.sh" }] }
+    ],
+    "PostCompact": [
+      { "matcher": "", "hooks": [{ "type": "command", "command": "~/.claude/hooks/post-compact.sh" }] }
     ],
     "PostToolUse": [
       { "matcher": "Edit|Write", "hooks": [{ "type": "command", "command": "~/.claude/hooks/post-edit.sh" }] }
