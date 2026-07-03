@@ -17,8 +17,9 @@ Exécuter sans demander confirmation. Informer après coup en une ligne.
 - **Projets scolaires ou sensibles** (marqués dans PROJECTS.md) : JAMAIS de commit/push/add — interdiction absolue. ETAT dans `~/dev/my-context/etat/[projet].md`.
 - **Nouveau repo ou type inconnu** : demander si le projet est scolaire avant tout commit/push.
 
-## Structure home (NON NÉGOCIABLE)
-Seuls dossiers autorisés à la racine de `~/` : `dev/` `Documents/` `Téléchargements/` `VM/` `wallpaper/`
+## Structure home
+<!-- SETUP_REQUIRED : adapter les dossiers autorisés à ta structure personnelle -->
+Seuls dossiers autorisés à la racine de `~/` : `dev/` `Documents/` SETUP_REQUIRED
 Seul fichier autorisé : `CLAUDE.md` (les fichiers cachés sont ignorés)
 Tout le reste → `mv ~/Documents/` automatiquement, signaler en une ligne.
 
