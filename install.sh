@@ -11,6 +11,12 @@ CLAUDE_DIR="$HOME/.claude"
 AUTO_YES="${1:-}"
 ERRORS=0
 
+# Détection OS
+IS_WINDOWS=false
+if [[ "$OSTYPE" == "msys" || "$OSTYPE" == "cygwin" || -n "${WINDIR:-}" ]]; then
+    IS_WINDOWS=true
+fi
+
 green() { echo "  ✓ $1"; }
 warn()  { echo "  ⚠ $1"; }
 err()   { echo "  ✗ $1"; ERRORS=$((ERRORS+1)); }
@@ -28,15 +34,23 @@ if [ "$CONTEXT_DIR" != "$EXPECTED_PATH" ]; then
     echo "   Chemin actuel : $CONTEXT_DIR"
     echo "   Chemin attendu : $EXPECTED_PATH"
     echo ""
-    echo "   Pour corriger :"
+    echo "   Pour corriger (Linux/Git Bash) :"
     echo "   mv \"$CONTEXT_DIR\" \"$EXPECTED_PATH\""
-    echo "   cd \"$EXPECTED_PATH\""
-    echo "   bash install.sh"
+    echo "   cd \"$EXPECTED_PATH\" && bash install.sh"
+    echo ""
+    echo "   Pour corriger (PowerShell) :"
+    echo "   Move-Item \"$CONTEXT_DIR\" \"$EXPECTED_PATH\""
     echo ""
     exit 1
 fi
 
 green "Dossier détecté : $CONTEXT_DIR"
+if $IS_WINDOWS; then
+    echo ""
+    warn "Windows détecté (Git Bash/MSYS). Les symlinks requièrent le mode développeur."
+    warn "Si des hooks/skills échouent → Paramètres Windows → Système → Pour les développeurs → activer."
+    warn "Alternative : utiliser WSL2 pour une expérience identique à Linux."
+fi
 echo ""
 
 # ── 1. Sync context depuis git ──────────────────────────────────────────────
@@ -66,8 +80,12 @@ for hook in "$CONTEXT_DIR/hooks/"*.sh; do
         warn "hooks/$name existe (non-symlink) — non écrasé, backup manuel requis"
         continue
     fi
-    ln -sf "$hook" "$target"
-    green "hooks/$name"
+    if ln -sf "$hook" "$target" 2>/dev/null && [ -L "$target" ]; then
+        green "hooks/$name → symlink"
+    else
+        cp "$hook" "$target"
+        warn "hooks/$name → copié (symlink indisponible — Windows sans Developer Mode ?)"
+    fi
     HOOK_COUNT=$((HOOK_COUNT+1))
 done
 [ $HOOK_COUNT -eq 0 ] && warn "Aucun hook .sh trouvé dans hooks/"
@@ -84,8 +102,12 @@ for skill in "$CONTEXT_DIR/skills/"*.md; do
         warn "commands/$name existe (non-symlink) — non écrasé"
         continue
     fi
-    ln -sf "$skill" "$target"
-    green "commands/$name"
+    if ln -sf "$skill" "$target" 2>/dev/null && [ -L "$target" ]; then
+        green "commands/$name → symlink"
+    else
+        cp "$skill" "$target"
+        warn "commands/$name → copié (symlink indisponible)"
+    fi
     SKILL_COUNT=$((SKILL_COUNT+1))
 done
 [ $SKILL_COUNT -eq 0 ] && warn "Aucun skill .md trouvé dans skills/"

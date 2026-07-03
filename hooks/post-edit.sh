@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 # Hook PostToolUse — déclenché après chaque Edit ou Write.
 # Lit le fichier édité depuis stdin JSON et lance le linter approprié selon l'extension.
 
@@ -29,6 +29,7 @@ case "$ext" in
 
         if [ -n "$tsconfig" ]; then
             project_root=$(dirname "$tsconfig")
+            command -v npx &>/dev/null || exit 0
             result=$(cd "$project_root" && npx --no tsc --noEmit 2>&1) || \
                 echo "[post-edit] TypeScript errors in $file_path:
 $result"
@@ -36,6 +37,7 @@ $result"
         ;;
 
     go)
+        command -v go &>/dev/null || exit 0
         dir=$(dirname "$file_path")
         result=$(cd "$dir" && go vet ./... 2>&1) || \
             echo "[post-edit] go vet errors in $file_path:

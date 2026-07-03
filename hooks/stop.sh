@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 # Hook Stop — déclenché après chaque réponse Claude
 # Pushe my-context uniquement si des fichiers ont été modifiés.
 # Ajouter d'autres repos si nécessaire (ex: obsidian-vault).
