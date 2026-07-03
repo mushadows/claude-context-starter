@@ -17,8 +17,8 @@ Ce projet change ça. Il donne à Claude un **context permanent** : un ensemble 
 - Mode professeur pour apprendre n'importe quel sujet avec une vraie pédagogie
 - Synchronisation multi-machine via Git
 - Architecture modulaire : seul le context pertinent est chargé selon ton projet actif
-- 3 hooks automatiques (push, sauvegarde transcript, lint)
-- 6 skills slash-commands (`/etat` `/ctx` `/bilan` `/deploy` `/prof` `/agents`)
+- 5 hooks automatiques (push, sauvegarde transcript, lint, démarrage de session)
+- 8 skills slash-commands (`/etat` `/ctx` `/bilan` `/deploy` `/prof` `/agents` `/check` `/today`)
 - Template ETAT.md par projet pour reprendre où tu t'es arrêté
 
 **Pour qui ?**
@@ -55,12 +55,14 @@ contexts/
 
 ### `hooks/` — automatismes transparents
 
-Trois scripts exécutés automatiquement par Claude Code, sans action de ta part :
+Cinq scripts exécutés automatiquement par Claude Code, sans action de ta part :
 
 | Hook | Quand | Ce qu'il fait |
 |---|---|---|
+| `session-start.sh` | Au démarrage | Pull des repos, clone des projets manquants |
 | `stop.sh` | Après chaque réponse | Pushe `my-context` si des fichiers ont été modifiés |
 | `pre-compact.sh` | Avant compaction | Sauvegarde le transcript dans `~/.claude/session-state/` |
+| `post-compact.sh` | Après compaction | Restaure le résumé de session |
 | `post-edit.sh` | Après chaque Edit/Write | Lance le linter (tsc, go vet, shellcheck) selon l'extension |
 
 ### `skills/` — slash-commands disponibles dans Claude
@@ -73,6 +75,8 @@ Trois scripts exécutés automatiquement par Claude Code, sans action de ta part
 | `/deploy [projet]` | Déploiement guidé avec vérifications pré-déploiement |
 | `/prof [matière]` | Génère ou met à jour les cours Obsidian d'une matière |
 | `/agents [type]` | Lance plusieurs subagents en parallèle pour une analyse complexe |
+| `/check` | Audit du contexte avant une grosse tâche (qualité fichiers, marge contexte) |
+| `/today` | Récap des tâches du jour (projets, agenda, dettes) |
 
 ### `templates/` — templates réutilisables
 
@@ -276,9 +280,9 @@ cd ~
 claude
 ```
 
-Claude va détecter que c'est ta première utilisation et démarrer l'interview de configuration automatiquement. Il va te poser des questions sur toi, tes outils, tes projets, et générer tous les fichiers de configuration personnalisés.
+Claude détectera les marqueurs `SETUP_REQUIRED` dans `core.md` et proposera de les remplir lors de cette première session. Il va te poser des questions sur toi, tes outils, tes projets, et remplir les fichiers de configuration avec tes valeurs personnelles.
 
-**L'interview dure environ 5-10 minutes.** À la fin, ton context est prêt.
+**La configuration dure environ 5-10 minutes.** À la fin, ton context est prêt.
 
 ---
 
@@ -333,8 +337,10 @@ my-context/
 │   ├── ctx-[projet].md     ← À créer pour chaque projet actif
 │   └── README.md           ← Comment ajouter un module
 ├── hooks/
+│   ├── session-start.sh    ← Pull repos + clone projets manquants au démarrage
 │   ├── stop.sh             ← Auto-push my-context après réponse
 │   ├── pre-compact.sh      ← Sauvegarde transcript avant compaction
+│   ├── post-compact.sh     ← Restaure le résumé après compaction
 │   └── post-edit.sh        ← Lint après Edit/Write (tsc, go vet, shellcheck)
 ├── skills/
 │   ├── etat.md             ← /etat — ETAT.md du projet courant
@@ -342,7 +348,9 @@ my-context/
 │   ├── bilan.md            ← /bilan — clôture de session
 │   ├── deploy.md           ← /deploy — déploiement guidé
 │   ├── prof.md             ← /prof — génération cours Obsidian
-│   └── agents.md           ← /agents — analyse multi-agents en parallèle
+│   ├── agents.md           ← /agents — analyse multi-agents en parallèle
+│   ├── check.md            ← /check — audit du contexte avant grosse tâche
+│   └── today.md            ← /today — récap des tâches du jour
 ├── templates/
 │   └── etat-template.md    ← Template utilisé par /etat
 ├── CLAUDE.local.md         ← Ton profil personnel (généré par l'interview)
