@@ -68,10 +68,11 @@ Si accepté : écrire `skills/[nom].md` + symlinker via `bash install.sh` + push
 **Ne pas proposer** si la tâche est unique, trop spécifique ou triviale.
 
 ## Checklist début de session (silencieuse, dans cet ordre)
+0. Détecter l'OS (voir CLAUDE.local.md §1) — Linux (`~/`) vs Windows Git Bash (`C:/Users/[user]/`)
 1. `git -C ~/dev/my-context pull` — informer si mises à jour récupérées
 2. Vérifier que `~/CLAUDE.md` contient `@dev/my-context/core.md` — corriger si absent
 3. Cloner les projets manquants selon PROJECTS.md (voir script dans CLAUDE.local.md §3)
-4. Scanner `~/Téléchargements/` : cours → `notes/` du vault, TPs → `TP/`, inconnus → `a-trier/`
+4. Scanner le dossier téléchargements (voir CLAUDE.local.md §8 pour le chemin selon l'OS) : cours → `notes/` du vault, TPs → `TP/`, inconnus → `a-trier/`
 5. Vérifier racine `~/` : tout dossier/fichier non autorisé → `mv ~/Documents/`
 6. Si jour du mois ≥ 25 : vérifier revue mensuelle (voir ctx-finance.md ou ROUTINES.md)
 

@@ -9,7 +9,7 @@ set -euo pipefail
 read -r -d '' _input < /dev/stdin 2>/dev/null || true
 
 LOCK_DIR="$HOME/.local/share/claude"
-BOOT_LOCK="/tmp/claude-boot-$(hostname -s)"
+BOOT_LOCK="/tmp/claude-boot-$(hostname -s 2>/dev/null || hostname | cut -d. -f1)"
 SESSION_LOCK="$LOCK_DIR/session-${CLAUDE_CODE_SESSION_ID}"
 LOG_FILE="$LOCK_DIR/last-session.log"
 
@@ -33,15 +33,18 @@ else
     log_ "· my-context à jour"
 fi
 
-# ── 2. obsidian-vault ───────────────────────────────────────────────────────
-OBS_BEFORE=$(git -C ~/dev/obsidian-vault rev-parse HEAD 2>/dev/null || echo "")
-git -C ~/dev/obsidian-vault pull --ff-only --quiet 2>/dev/null || true
-OBS_AFTER=$(git -C ~/dev/obsidian-vault rev-parse HEAD 2>/dev/null || echo "")
-if [ "$OBS_BEFORE" != "$OBS_AFTER" ] && [ -n "$OBS_BEFORE" ]; then
-    log_ "✓ obsidian-vault mis à jour"
-else
-    log_ "· obsidian-vault à jour"
-fi
+# ── 2. obsidian-vault (SETUP_REQUIRED — adapter ou supprimer) ──────────────
+# Décommenter et adapter le chemin si tu utilises un vault Obsidian :
+# OBS_DIR="$HOME/dev/obsidian-vault"          # Linux/WSL
+# OBS_DIR="C:/Users/[user]/Documents/Obsidian"  # Windows (Git Bash)
+# OBS_BEFORE=$(git -C "$OBS_DIR" rev-parse HEAD 2>/dev/null || echo "")
+# git -C "$OBS_DIR" pull --ff-only --quiet 2>/dev/null || true
+# OBS_AFTER=$(git -C "$OBS_DIR" rev-parse HEAD 2>/dev/null || echo "")
+# if [ "$OBS_BEFORE" != "$OBS_AFTER" ] && [ -n "$OBS_BEFORE" ]; then
+#     log_ "✓ obsidian-vault mis à jour"
+# else
+#     log_ "· obsidian-vault à jour"
+# fi
 
 # ── Niveau session (boot déjà fait) ────────────────────────────────────────
 if [ -f "$BOOT_LOCK" ]; then
@@ -84,38 +87,46 @@ else
     log_ "· CLAUDE.md OK"
 fi
 
-# 5. Scanner ~/Téléchargements/ (adapter le chemin si nécessaire)
-DL_COUNT=$(ls ~/Téléchargements/ 2>/dev/null | grep -cv "^a-trier$" || echo 0)
-[ "$DL_COUNT" -gt 0 ] \
-    && log_ "⚠ ${DL_COUNT} fichier(s) dans ~/Téléchargements/ à traiter" \
-    || log_ "· Téléchargements vide"
+# 5. Scanner le dossier téléchargements (SETUP_REQUIRED — adapter le chemin)
+# Linux (fr) : ~/Téléchargements/   Linux (en) : ~/Downloads/
+# Windows (Git Bash) : ~/Downloads/ ou C:/Users/[user]/Downloads/
+# Décommenter et adapter :
+# DL_DIR="$HOME/Téléchargements"      # Linux français
+# DL_DIR="$HOME/Downloads"            # Linux anglais / Windows Git Bash
+# DL_COUNT=$(ls "$DL_DIR" 2>/dev/null | grep -cv "^a-trier$" || echo 0)
+# [ "$DL_COUNT" -gt 0 ] \
+#     && log_ "⚠ ${DL_COUNT} fichier(s) dans $DL_DIR/ à traiter" \
+#     || log_ "· Dossier téléchargements vide"
 
-# 6. Vérifier la racine ~/
-# SETUP_REQUIRED : adapter la liste selon votre structure home
-ALLOWED=(dev Documents Téléchargements VM wallpaper)
-INTRUS=()
-for item in ~/*/; do
-    [ -e "$item" ] || continue
-    name=$(basename "$item")
-    skip=false
-    for a in "${ALLOWED[@]}"; do [[ "$name" == "$a" ]] && skip=true && break; done
-    $skip || INTRUS+=("$name/")
-done
-for f in ~/*; do
-    [ -e "$f" ] || continue
-    [ -d "$f" ] && continue
-    name=$(basename "$f")
-    [[ "$name" == "CLAUDE.md" || "$name" == .* ]] && continue
-    INTRUS+=("$name")
-done
-if [ ${#INTRUS[@]} -gt 0 ]; then
-    for item in "${INTRUS[@]}"; do
-        mv ~/"$item" ~/Documents/ 2>/dev/null || true
-    done
-    log_ "✓ Déplacé dans Documents/ : ${INTRUS[*]}"
-else
-    log_ "· Racine ~/ propre"
-fi
+# 6. Vérifier la structure du home (SETUP_REQUIRED — adapter ou désactiver)
+# ⚠️  DANGER : ce bloc déplace automatiquement les dossiers non listés.
+# Décommenter UNIQUEMENT après avoir personnalisé ALLOWED selon ta structure.
+# Windows : cette étape n'est PAS applicable (structure home différente).
+#
+# ALLOWED=(dev Documents Téléchargements VM wallpaper)  # Linux — adapter
+# INTRUS=()
+# for item in ~/*/; do
+#     [ -e "$item" ] || continue
+#     name=$(basename "$item")
+#     skip=false
+#     for a in "${ALLOWED[@]}"; do [[ "$name" == "$a" ]] && skip=true && break; done
+#     $skip || INTRUS+=("$name/")
+# done
+# for f in ~/*; do
+#     [ -e "$f" ] || continue
+#     [ -d "$f" ] && continue
+#     name=$(basename "$f")
+#     [[ "$name" == "CLAUDE.md" || "$name" == .* ]] && continue
+#     INTRUS+=("$name")
+# done
+# if [ ${#INTRUS[@]} -gt 0 ]; then
+#     for item in "${INTRUS[@]}"; do
+#         mv ~/"$item" ~/Documents/ 2>/dev/null || true
+#     done
+#     log_ "✓ Déplacé dans Documents/ : ${INTRUS[*]}"
+# else
+#     log_ "· Racine ~/ propre"
+# fi
 
 # 7. Revue mensuelle (SETUP_REQUIRED : adapter ou supprimer selon votre contexte)
 # Exemple : vérifier si une note financière a été mise à jour ce mois-ci
