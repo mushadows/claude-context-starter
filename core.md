@@ -16,6 +16,7 @@ Exécuter sans demander confirmation. Informer après coup en une ligne.
 - **Repos perso** : pusher d'office après modification.
 - **Projets scolaires ou sensibles** (marqués dans PROJECTS.md) : JAMAIS de commit/push/add — interdiction absolue. ETAT dans `~/dev/my-context/etat/[projet].md`.
 - **Nouveau repo ou type inconnu** : demander si le projet est scolaire avant tout commit/push.
+- Garde-fou technique disponible : `settings-template.json` contient un hook `PreToolUse` qui bloque physiquement les commandes git destructrices (`commit`/`push`/`add`/`stash`/`merge`/`rebase`/`reset`) dans les chemins configurés — remplacer les `SETUP_REQUIRED-projet-*` par les vrais chemins de tes projets scolaires/sensibles.
 
 ## Structure home
 <!-- SETUP_REQUIRED : adapter les dossiers autorisés à ta structure personnelle -->
