@@ -280,9 +280,9 @@ cd ~
 claude
 ```
 
-Claude détectera les marqueurs `SETUP_REQUIRED` dans `core.md` et proposera de les remplir lors de cette première session. Il va te poser des questions sur toi, tes outils, tes projets, et remplir les fichiers de configuration avec tes valeurs personnelles.
+Claude détectera les marqueurs `SETUP_REQUIRED` dans `core.md` et suivra le déroulé prévu dans `INTERVIEW.md` pour te poser des questions simples sur toi, tes outils, tes projets — aucune connaissance technique n'est nécessaire, Claude s'occupe de toute la partie fichiers/Git lui-même, tu n'as aucune commande à taper pendant l'interview.
 
-**La configuration dure environ 5-10 minutes.** À la fin, ton context est prêt.
+**La configuration dure environ 5-10 minutes**, par petits groupes de questions. Tu peux répondre "je ne sais pas" à tout moment. À la fin, ton context est prêt et sauvegardé automatiquement.
 
 ---
 
@@ -332,6 +332,7 @@ Ton context complet sera récupéré depuis GitHub et tu seras immédiatement op
 my-context/
 ├── CLAUDE.md               ← Une ligne : @dev/my-context/core.md
 ├── core.md                 ← Context chargé à chaque session (profil, modules, checklist)
+├── INTERVIEW.md             ← Déroulé de la configuration initiale (lu une seule fois, au premier lancement)
 ├── contexts/
 │   ├── ctx-dev.md          ← Règles de code (à adapter)
 │   ├── ctx-[projet].md     ← À créer pour chaque projet actif
