@@ -2,6 +2,9 @@
 > Chargé à chaque session. Modules ctx-* chargés selon le projet actif (~/dev/my-context/contexts/).
 > Fichier généré lors de l'interview de configuration — remplacer les SETUP_REQUIRED.
 
+## Première session (NON NÉGOCIABLE)
+Si ce fichier contient encore au moins un `SETUP_REQUIRED` → **ne pas exécuter la checklist "Début de session" plus bas**, elle suppose une configuration déjà faite. Lire `~/dev/my-context/INTERVIEW.md` à la place et suivre ses instructions pour configurer le context avec l'utilisateur — public non technique, aucune connaissance Git/ligne de commande à supposer.
+
 ## Profil
 - Nom : SETUP_REQUIRED — GitHub : SETUP_REQUIRED
 - Email : SETUP_REQUIRED
