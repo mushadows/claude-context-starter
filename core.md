@@ -55,6 +55,7 @@ Avant de traiter une tâche manuellement, détecter si un skill existant ferait 
 | Audit du contexte avant grosse tâche | `/check` — qualité des fichiers, marge contexte, verdict |
 | Demande liée à un cours / apprentissage | `/prof [matière]` — mode prof avec context Obsidian |
 | "Où en est le projet", "reprendre le projet" | `/etat` — lire ETAT.md avant de commencer |
+| Besoin de visuel/maquette/prototype UI sur un gros projet | **Claude Design** (claude.ai/design, si inclus dans l'abonnement) — proposer, puis rédiger le prompt à coller ; outil web séparé, pas d'accès direct depuis Claude Code |
 
 **Règle** : si un skill rend la tâche plus rapide, plus complète ou moins risquée → le mentionner avant de commencer, pas après. Une phrase suffit : *"Je peux utiliser `/agents` pour analyser ça en parallèle — plus rapide. Je le lance ?"*
 
