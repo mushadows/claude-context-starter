@@ -126,7 +126,7 @@ try {
             Remove-Item $fnmZip
         }
         $env:Path = "$fnmDir;$env:Path"
-        & $fnmExe env --use-on-cd --shell power-shell | Out-String | Invoke-Expression
+        & $fnmExe env --use-on-cd --shell powershell | Out-String | Invoke-Expression
         & $fnmExe install --lts | Out-Null
         & $fnmExe use lts-latest | Out-Null
         Ok "Node.js $(& node -v) installé (isolé)"
@@ -171,10 +171,20 @@ try {
     }
 
     # Copier les fichiers système (jamais user)
-    foreach ($item in @('core.md','INTERVIEW.md','README.md','hooks','skills','lib','templates','settings-template.json','internals')) {
+    foreach ($item in @('core.md','INTERVIEW.md','README.md','hooks','skills','lib','templates','contexts','settings-template.json','internals')) {
         $s = Join-Path $srcRoot $item
         if (Test-Path $s) { Copy-Item -Path $s -Destination $ClaudiaHome -Recurse -Force }
     }
+
+    # Templates user (profil.md, memoire.md) : UNIQUEMENT si absents
+    foreach ($f in @('profil.md','memoire.md')) {
+        $dst = Join-Path $ClaudiaHome $f
+        $src = Join-Path $srcRoot "templates/$f"
+        if (-not (Test-Path $dst) -and (Test-Path $src)) {
+            Copy-Item -Path $src -Destination $dst
+        }
+    }
+
     Set-Content -Path (Join-Path $ClaudiaHome '.claudia-version') -Value (Get-Date -Format 'yyyy-MM-dd') -Encoding UTF8
     Remove-Item -Recurse -Force $tmp
     Ok "Fichiers Claudia à jour"

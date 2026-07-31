@@ -1,39 +1,43 @@
-Charge manuellement un module de context dans la session courante.
+---
+description: Charge un contexte particulier (un projet, un domaine) dans la conversation.
+---
 
-## Modules disponibles
+# /ctx — Charger un contexte
 
-Les modules disponibles sont définis dans `~/dev/my-context/contexts/`.
-Lister les fichiers présents pour connaître les modules installés :
+Sert à dire à Claudia « on va parler de X, prépare-toi ». Elle va lire le fichier de contexte correspondant pour être au point.
+
+## Préparation
+
+Toujours en tête de skill :
+
 ```bash
-ls ~/dev/my-context/contexts/ctx-*.md
+source "$CLAUDIA_HOME/lib/paths.sh"
 ```
 
-Modules fournis par défaut :
-| Commande | Fichier chargé | Usage |
-|---|---|---|
-| `/ctx dev` | `ctx-dev.md` | Règles de code (TS, React, Go, etc.) |
-
-Modules à créer selon ton profil (exemples) :
-| Commande | Fichier | Usage |
-|---|---|---|
-| `/ctx [projet]` | `ctx-[projet].md` | Context d'un projet spécifique |
-| `/ctx homeserver` | `ctx-homeserver.md` | Infra serveur, Docker, services |
-| `/ctx finance` | `ctx-finance.md` | Routines financières, budget |
-| `/ctx prof [matière]` | `ctx-professor.md` | Mode professeur, optionnel : matière |
+Les contextes vivent dans `$CLAUDIA_HOME/contexts/` — un fichier `ctx-[nom].md` par projet ou domaine.
 
 ## Comportement
 
-**Arguments :** `$ARGUMENTS`
-
 **Sans argument :**
-Afficher la liste des modules disponibles (`ls ~/dev/my-context/contexts/ctx-*.md`) avec une ligne de description chacun.
-Indiquer le module détecté automatiquement selon le cwd courant (si applicable).
 
-**Avec argument :**
-1. Identifier le module demandé (tolérer les fautes de frappe et variantes)
-2. Lire le ou les fichiers ctx-*.md correspondants depuis `~/dev/my-context/contexts/`
-3. Injecter leur contenu dans la session — confirmer en une ligne : "Contexte [module] chargé."
+Lister les contextes disponibles :
 
-**Si le module demandé n'existe pas :**
-Lister les modules disponibles et suggérer le plus proche.
-Proposer de créer le module si la demande est légitime.
+```bash
+ls "$CLAUDIA_HOME/contexts/"ctx-*.md 2>/dev/null
+```
+
+Afficher chaque contexte avec une ligne de description (prise du fichier). Si le dossier où on est correspond à un projet connu, le signaler :
+
+> « Tu veux qu'on parle de quoi ? Voilà ce que je connais : *[liste]*. »
+
+**Avec argument (ex: `/ctx cuisine`) :**
+
+1. Trouver le fichier correspondant (tolérer fautes et variantes)
+2. Le lire depuis `$CLAUDIA_HOME/contexts/ctx-[nom].md`
+3. Confirmer en une ligne : *« C'est bon, je suis dans le contexte [nom]. »*
+
+**Si le contexte demandé n'existe pas :**
+
+> « Je n'ai rien sur *[nom]*. J'ai ça : *[liste courte]*. Tu veux que je crée un contexte pour *[nom]* ? »
+
+Si oui → créer un fichier de base `$CLAUDIA_HOME/contexts/ctx-[nom].md` avec une trame courte (nom, description, notes) et le confirmer.

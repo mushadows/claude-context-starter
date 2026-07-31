@@ -1,75 +1,95 @@
-Clôture de session : résumé, mise à jour ETAT.md, push des repos modifiés.
+---
+description: Clôture propre d'une session : résumé, mise à jour du fichier d'avancement, sauvegarde si prévue.
+---
+
+# /bilan — On arrête là
+
+Sert à ranger avant de fermer : Claudia résume ce qu'on a fait, met à jour la mémoire du projet, et sauvegarde si la personne l'a demandé.
+
+## Préparation
+
+```bash
+source "$CLAUDIA_HOME/lib/paths.sh"
+```
 
 ## Étapes (dans cet ordre)
 
 ### 1. Résumé de session
-Produire un résumé en exactement 3 bullets de ce qui a été fait dans cette session.
-Format :
-```
-- [action concrète] — [fichier ou composant concerné]
-- ...
-- ...
-```
-Pas de bla-bla, pas de verbe "nous avons" — des faits directs.
 
-### 2. Mise à jour ETAT.md
+3 bullets, faits directs, pas de « nous avons » :
+
+```
+- [action concrète] — [fichier ou sujet]
+- ...
+- ...
+```
+
+### 2. Mise à jour du fichier d'avancement
+
 ```bash
 pwd
 ls ETAT.md 2>/dev/null
 ```
-Si `ETAT.md` existe dans le cwd courant :
-- Mettre à jour la section **Dernière session** avec la date du jour et le résumé ci-dessus
-- Mettre à jour **En cours** : retirer les tâches terminées, ajouter les nouvelles
-- Mettre à jour **Prochaine étape** selon ce qui reste
-- Mettre à jour **Décisions architecturales** si de nouvelles décisions ont été prises
-- Commiter : `git add ETAT.md && git commit -m "chore(etat): mise à jour session $(date +%Y-%m-%d)"`
 
-### 3. Mise à jour du ctx projet
+Si `ETAT.md` existe dans le dossier où on est :
+- **Dernière session** → date du jour + résumé ci-dessus
+- **En cours** → retirer ce qui est terminé, ajouter le nouveau
+- **Prochaine étape** → selon ce qui reste
+- **Décisions** → ajouter les nouvelles décisions prises
 
-Identifier le projet actif depuis le cwd (ex: `~/dev/[projet]/` → `ctx-[projet].md`).
+Ne rien sauvegarder à distance à moins que la personne l'ait activé pour ce projet (voir profil).
 
-Relire mentalement la session et extraire ce qui mérite d'être capturé dans le ctx :
-- Décisions techniques prises (choix d'implémentation, pattern retenu, alternative écartée)
-- Contraintes découvertes (bug contourné, limite d'une lib, comportement inattendu)
-- Nouveaux patterns ou conventions établis
-- État d'avancement significatif (feature terminée, module intégré, blocage levé)
+### 3. Mise à jour du contexte projet
 
-Si au moins un item est identifié et que le module `ctx-[projet].md` existe :
-- Lire `~/dev/my-context/contexts/ctx-[projet].md`
-- Mettre à jour les sections concernées (ne pas tout réécrire — cibler les deltas)
-- `git -C ~/dev/my-context add contexts/ctx-[projet].md && git commit -m "ctx([projet]): mise à jour session $(date +%Y-%m-%d)"`
+Identifier le contexte projet actif (dossier courant → `ctx-[projet].md`).
 
-Si rien de nouveau à capturer, ou si le module ctx n'existe pas encore → passer sans commenter.
+Repérer dans la session ce qui mérite d'être capturé :
+- Décisions prises (choix, alternatives écartées)
+- Contraintes découvertes (problème contourné, comportement inattendu)
+- Nouvelles conventions établies
+- Étapes importantes franchies
 
-**Ne pas capturer :** ce qui est déjà dans ETAT.md, les détails de debug éphémères, les décisions qui seront visibles dans le code.
+Si au moins un item est identifié et que `$CLAUDIA_HOME/contexts/ctx-[projet].md` existe :
+- Le lire
+- Mettre à jour les sections concernées (viser les vrais changements, pas tout réécrire)
 
-### 4. Propagation mémoire → context
+Si rien de neuf, ou si le contexte n'existe pas encore → passer sans commenter.
 
-Relire la session et les fichiers mémoire créés ou modifiés (`memory/`). Pour chaque règle comportementale nouvelle ou mise à jour, décider si elle doit être propagée dans le context :
+**Ne pas capturer :** ce qui est déjà dans `ETAT.md`, les détails de débogage jetables, les décisions déjà visibles dans les fichiers.
 
-**Critères de propagation (au moins un) :**
-- Règle sur l'autonomie ou les permissions (push, commit, confirmation)
-- Règle sur le comportement systématique (toujours faire X, ne jamais faire Y)
-- Préférence structurante qui s'applique à toutes les sessions futures
+### 4. Remontée mémoire → contexte général
 
-**Si propagation nécessaire :**
-- Règle d'autonomie / permissions → `core.md` section "Autonomie"
-- Comportement technique ou erreur à éviter → `CLAUDE.local.md` section "Erreurs à ne pas reproduire"
-- Mettre à jour le fichier, commiter dans `my-context`
+Relire la session. Pour chaque règle de comportement nouvelle, décider si elle doit remonter dans le contexte général :
 
-**Si rien à propager** → passer sans commenter.
+**Critères (au moins un) :**
+- Règle sur l'autonomie ou les permissions (sauvegarder, demander avant, etc.)
+- Règle systématique (toujours faire X, ne jamais faire Y)
+- Préférence structurante qui vaut pour toutes les sessions
 
-La mémoire (`memory/`) reste un complément — le context (`core.md`, `CLAUDE.local.md`) est la source de vérité pour les règles critiques.
+**Si oui :**
+- Règle d'autonomie / permissions → `$CLAUDIA_HOME/core.md` section « Autonomie »
+- Erreur à éviter → `$CLAUDIA_HOME/profil.md` ou `$CLAUDIA_HOME/memoire.md`
+- Signaler ce qui est ajouté en une ligne (règle Claudia : jamais silencieusement)
 
-### 5. Push des repos modifiés
+**Si rien à remonter** → passer.
+
+### 5. Sauvegarde (si prévue)
+
+Vérifier si la personne a activé la sauvegarde automatique pour Claudia elle-même :
+
 ```bash
-git -C ~/dev/my-context status --porcelain
+git -C "$CLAUDIA_HOME" status --porcelain 2>/dev/null
 ```
-- Si `my-context` a des changements non pushés → `git -C ~/dev/my-context push`
-- Pour tout autre repo modifié pendant la session (ex: `obsidian-vault` si configuré) → informer et demander confirmation avant push
-- Informer en une ligne de ce qui a été pushé (ou rien si tout était propre)
+
+- Si `$CLAUDIA_HOME` est suivi par une sauvegarde (git présent) et qu'il y a des changements → sauvegarder et informer en une ligne.
+- Pour tout autre dossier modifié pendant la session → demander avant de sauvegarder.
+
+Si rien n'est configuré → ne rien faire, ne pas insister.
 
 ### 6. Conseil de compaction
-Estimer si le contexte de la session est long (nombreux fichiers lus, beaucoup d'éditions).
-Si oui → suggérer : "Contexte potentiellement chargé — envisager `/compact` avant la prochaine tâche lourde."
-Sinon → ne rien dire sur ce point.
+
+Si la session a été longue (beaucoup de fichiers lus, beaucoup d'éditions) → suggérer :
+
+> « La conversation commence à être longue. Si tu veux, on peut nettoyer avec `/compact` avant la prochaine grosse tâche. »
+
+Sinon → rien dire.

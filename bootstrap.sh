@@ -120,8 +120,8 @@ info "État interne : $CLAUDIA_STATE"
 step "Je vérifie Node.js"
 NEED_FNM=true
 if command -v node >/dev/null 2>&1; then
-    NODE_MAJOR=$(node -v | sed -E 's/^v([0-9]+).*/\1/')
-    if [ "$NODE_MAJOR" -ge "$NODE_MIN_MAJOR" ] 2>/dev/null; then
+    NODE_MAJOR=$(node -v 2>/dev/null | sed -E 's/^v([0-9]+).*/\1/')
+    if [ -n "$NODE_MAJOR" ] && [ "$NODE_MAJOR" -ge "$NODE_MIN_MAJOR" ] 2>/dev/null; then
         ok "Node.js $(node -v) — déjà installé"
         NEED_FNM=false
     else
@@ -170,7 +170,7 @@ if [ -f "$CLAUDIA_HOME/.claudia-version" ]; then
     for f in profil.md memoire.md; do
         [ -f "$CLAUDIA_HOME/$f" ] && cp "$CLAUDIA_HOME/$f" "$BACKUP/" || true
     done
-    [ -d "$CLAUDIA_HOME/memory" ] && cp -R "$CLAUDIA_HOME/memory" "$BACKUP/" || true
+    [ -d "$CLAUDIA_HOME/contexts" ] && cp -R "$CLAUDIA_HOME/contexts" "$BACKUP/" 2>/dev/null || true
     log "backup vers $BACKUP"
 fi
 
@@ -181,10 +181,18 @@ if [ -z "$SRC" ]; then
     exit 12
 fi
 
-# On copie les fichiers "système" (jamais les fichiers utilisateur)
-for item in core.md INTERVIEW.md README.md hooks skills lib templates settings-template.json internals; do
+# On copie les fichiers "système" (jamais les fichiers utilisateur existants)
+for item in core.md INTERVIEW.md README.md hooks skills lib templates contexts settings-template.json internals; do
     [ -e "$SRC/$item" ] && cp -R "$SRC/$item" "$CLAUDIA_HOME/" || true
 done
+
+# Templates user (profil.md, memoire.md) : copier UNIQUEMENT s'ils n'existent pas déjà
+for f in profil.md memoire.md; do
+    if [ ! -f "$CLAUDIA_HOME/$f" ] && [ -f "$SRC/templates/$f" ]; then
+        cp "$SRC/templates/$f" "$CLAUDIA_HOME/$f"
+    fi
+done
+
 echo "$(date +%Y-%m-%d)" > "$CLAUDIA_HOME/.claudia-version"
 rm -rf "$TMPDIR"
 ok "Fichiers Claudia à jour"

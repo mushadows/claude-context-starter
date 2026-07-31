@@ -4,10 +4,6 @@
     "defaultMode": "acceptEdits",
     "allow": ["Bash(*)", "Read(*)", "Edit(*)", "Write(*)", "Glob(*)", "Grep(*)", "WebSearch", "WebFetch(*)"]
   },
-  "effortLevel": "medium",
-  "advisorModel": "opus",
-  "promptSuggestionEnabled": false,
-  "tui": "fullscreen",
   "theme": "auto",
   "autoCompactEnabled": true,
   "hooks": {
@@ -22,19 +18,6 @@
     ],
     "PostCompact": [
       { "matcher": "", "hooks": [{ "type": "command", "command": "~/.claude/hooks/post-compact.sh" }] }
-    ],
-    "PostToolUse": [
-      { "matcher": "Edit|Write", "hooks": [{ "type": "command", "command": "~/.claude/hooks/post-edit.sh" }] }
-    ],
-    "PreToolUse": [
-      {
-        "matcher": "Bash",
-        "hooks": [{
-          "type": "command",
-          "if": "Bash(git *)",
-          "command": "cmd=$(jq -r '.tool_input.command // \"\"'); cwd=$(pwd); if [[ \"$cwd\" == \"$HOME\"/dev/SETUP_REQUIRED-projet-1* || \"$cwd\" == \"$HOME\"/dev/SETUP_REQUIRED-projet-2* ]]; then if echo \"$cmd\" | grep -qE 'git[[:space:]]+(commit|push|add|stash|merge|rebase|cherry-pick|reset)\\b'; then printf '{\"systemMessage\":\"⛔ PROJET SCOLAIRE/SENSIBLE — git interdit ici\\nCommande bloquée : %s\\nAutorisé : pull · fetch · log · status · diff uniquement\",\"hookSpecificOutput\":{\"hookEventName\":\"PreToolUse\",\"permissionDecision\":\"deny\",\"permissionDecisionReason\":\"Projet scolaire/sensible — commande git modifiant lhistorique interdite\"}}' \"$cmd\"; exit 2; fi; fi"
-        }]
-      }
     ]
   }
 }

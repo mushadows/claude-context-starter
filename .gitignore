@@ -15,3 +15,15 @@ desktop.ini
 *.key
 *.pem
 secrets/
+
+# Fichiers utilisateur Claudia (si le repo est utilisé en local pour développer)
+# Sur la machine d'un end-user, ces fichiers vivent dans ~/Documents/Claudia/
+# et ne sont JAMAIS dans le repo. Si tu forks pour dev, tu peux ignorer localement.
+profil.md
+memoire.md
+/CLAUDE.md
+/CLAUDE.local.md
+.autosync
+.claudia-version
+/contexts/ctx-*.md
+!/contexts/README.md

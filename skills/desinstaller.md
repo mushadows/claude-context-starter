@@ -59,6 +59,13 @@ Si la personne répond exactement `oui, désinstalle` (ou une variante claire ty
 Exécuter dans cet ordre (chaque étape encapsulée, ne pas s'arrêter à la première erreur — informer et continuer) :
 
 ```bash
+# 0. Résoudre les vrais chemins (Claudia peut être déplacée / sous OneDrive)
+source "$HOME/Documents/Claudia/lib/paths.sh" 2>/dev/null || {
+    CLAUDIA_HOME="$HOME/Documents/Claudia"
+    CLAUDIA_STATE="$HOME/.claudia"
+}
+[ -f "$HOME/.claudia/root" ] && CLAUDIA_HOME="$(cat "$HOME/.claudia/root")"
+
 # 1. Retirer les hooks et skills déployés
 for f in ~/.claude/hooks/*.sh; do
   [ -f "$f" ] && rm -f "$f"
@@ -67,19 +74,18 @@ for f in ~/.claude/commands/*.md; do
   [ -f "$f" ] && rm -f "$f"
 done
 
-# 2. Retirer la ligne @Documents/Claudia/core.md dans ~/CLAUDE.md
+# 2. Retirer la ligne Claudia dans ~/CLAUDE.md
 if [ -f ~/CLAUDE.md ]; then
   cp ~/CLAUDE.md ~/CLAUDE.md.bak-avant-desinstall-$(date +%Y%m%d)
-  grep -v "@Documents/Claudia/core.md" ~/CLAUDE.md > ~/CLAUDE.md.tmp && mv ~/CLAUDE.md.tmp ~/CLAUDE.md
-  # Si le fichier est vide après → le supprimer
+  grep -v "Documents/Claudia/core.md" ~/CLAUDE.md > ~/CLAUDE.md.tmp && mv ~/CLAUDE.md.tmp ~/CLAUDE.md
   [ ! -s ~/CLAUDE.md ] && rm ~/CLAUDE.md
 fi
 
 # 3. Supprimer le dossier Claudia (contenu personnel)
-rm -rf ~/Documents/Claudia
+rm -rf "$CLAUDIA_HOME"
 
 # 4. Supprimer l'état interne
-rm -rf ~/.claudia
+rm -rf "$CLAUDIA_STATE"
 ```
 
 **Sur Windows**, adapter les chemins :

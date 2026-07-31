@@ -1,20 +1,20 @@
 #!/bin/bash
-# Hook PreCompact — déclenché avant la compaction automatique du contexte.
-# NOTE : "PreCompact" n'est pas un hook natif confirmé dans Claude Code (certifiés : Stop,
-# PreToolUse, PostToolUse, Notification). Ce script est prêt — il s'activera automatiquement
-# si/quand Claude Code implémente cet événement officiellement.
-#
-# Objectif : sauvegarder le transcript de session avant que la compaction ne l'écrase,
-# pour ne pas perdre les décisions architecturales prises en cours de session.
+# Hook PreCompact — sauvegarde le transcript avant compaction
 
 set -euo pipefail
 
-STATE_DIR="$HOME/.claude/session-state"
+# Charger CLAUDIA_STATE via lib/paths.sh
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+if [ -f "$SCRIPT_DIR/../lib/paths.sh" ]; then
+    source "$SCRIPT_DIR/../lib/paths.sh"
+else
+    CLAUDIA_STATE="${CLAUDIA_STATE:-$HOME/.claudia}"
+fi
+
+STATE_DIR="$CLAUDIA_STATE/session-state"
 mkdir -p "$STATE_DIR"
 
-# Lire le JSON stdin (format attendu : {"session_id":"...","transcript_path":"...","cwd":"..."})
 stdin_data=$(cat)
-
 session_id=$(echo "$stdin_data" | grep -o '"session_id":"[^"]*"' | cut -d'"' -f4 2>/dev/null || echo "unknown")
 transcript_path=$(echo "$stdin_data" | grep -o '"transcript_path":"[^"]*"' | cut -d'"' -f4 2>/dev/null || echo "")
 

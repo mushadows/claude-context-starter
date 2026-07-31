@@ -33,7 +33,10 @@ push_if_dirty() {
     git -C "$repo" push --quiet 2>/dev/null || true
 }
 
-# Push Claudia si l'user a activé la sauvegarde git
-push_if_dirty "$CLAUDIA_HOME" "claudia"
+# Sauvegarde auto : uniquement si l'user l'a activée explicitement
+# (crée $CLAUDIA_HOME/.autosync pour activer)
+if [ -f "$CLAUDIA_HOME/.autosync" ]; then
+    push_if_dirty "$CLAUDIA_HOME" "claudia"
+fi
 
 exit 0

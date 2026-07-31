@@ -22,14 +22,14 @@ Avantage : au lieu de charger 20 000 tokens à chaque session, seul le context p
 
 ## Créer un nouveau module
 
-1. Créer `contexts/ctx-[nom].md`
+1. Créer `contexts/ctx-[nom].md` dans `~/Documents/Claudia/contexts/`
 2. Y mettre uniquement les infos nécessaires pour ce projet/contexte
 3. Ajouter une ligne dans la table "Modules context" de `core.md`
-4. Commiter et pusher `my-context`
+4. Optionnel : sauvegarder en ligne si l'auto-sauvegarde est activée
 
 ## Modules fournis
 
-- `ctx-dev.md` — règles de code universelles (adapter aux langages de tes projets)
+Aucun module par défaut. Les templates de modules dev/prof sont dans `templates/optional/` — à copier ici si tu en as l'usage.
 
 ## Modules à créer selon ton profil
 

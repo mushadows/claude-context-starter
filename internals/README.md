@@ -11,10 +11,7 @@ Pas destiné à être lu par un utilisateur non-technicien. Utile pour :
 
 | Fichier | Sujet |
 |---|---|
-| `start-of-session.md` | Détection OS, pull des dépôts, checks silencieux au démarrage |
 | `os-paths.md` | Chemins qui varient selon l'OS (Documents, Téléchargements, vault…) |
-| `error-catalog.md` | Erreurs connues + fix (git/npm/docker/hyprland/etc.) |
-| `hooks-spec.md` | Contrat des hooks Claude Code (Stop, PreCompact, PostCompact, PostEdit, SessionStart) |
 | `install-flow.md` | Séquence complète du bootstrap Linux/Mac + Windows |
 
 ## Contribuer

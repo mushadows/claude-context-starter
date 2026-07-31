@@ -1,94 +1,97 @@
-# /check — Audit du contexte général avant une grosse tâche
+---
+description: Audit rapide — Claudia vérifie qu'elle a bien tout ce qu'il lui faut avant une grosse tâche.
+---
 
-Effectue un bilan complet de l'état du contexte Claude Code : qualité des fichiers, fraîcheur, usage mémoire estimé, verdict de préparation.
+# /check — Es-tu au clair ?
 
-## Comportement
+Sert à faire un point avant de se lancer dans quelque chose d'important : Claudia regarde si ses fichiers de mémoire sont à jour, complets, et si elle a assez de place dans la conversation pour bosser.
 
-**Arguments :** `$ARGUMENTS` (ignorés)
+## Préparation
 
-### Étape 1 — Lire les fichiers de contexte
+```bash
+source "$CLAUDIA_HOME/lib/paths.sh"
+```
 
-Lire en parallèle :
-- `~/dev/my-context/CONF.md`
-- `~/dev/my-context/PROJECTS.md`
-- `~/dev/my-context/ROUTINES.md`
-- `~/dev/my-context/CLAUDE.local.md`
-- `~/dev/my-context/core.md`
-- Tous les `~/dev/my-context/contexts/ctx-*.md`
+## Étape 1 — Lire les fichiers Claudia
 
-### Étape 2 — Évaluer chaque fichier
+Lire en parallèle (ceux qui existent) :
+- `$CLAUDIA_HOME/core.md`
+- `$CLAUDIA_HOME/profil.md`
+- `$CLAUDIA_HOME/memoire.md`
+- Tous les `$CLAUDIA_HOME/contexts/ctx-*.md`
 
-Pour chaque fichier, noter sur 3 critères :
-- **Complétude** : sections remplies ? Pas de `TODO` / `À compléter` / champs vides ?
-- **Fraîcheur** : dates mentionnées récentes ? Cohérentes avec aujourd'hui ?
-- **Clarté** : structure lisible, pas de contradictions, pas d'infos dupliquées ?
+## Étape 2 — Évaluer chaque fichier
 
-Afficher un tableau synthétique :
+Pour chaque fichier, 3 critères :
+- **Complétude** : sections remplies ? Pas de `SETUP_REQUIRED`, `TODO`, ou trous ?
+- **Fraîcheur** : les dates mentionnées sont-elles récentes et cohérentes ?
+- **Clarté** : lisible, sans contradiction, sans doublon ?
+
+Afficher un tableau simple :
 
 ```
-Fichier           Complétude   Fraîcheur   Clarté   Note
-─────────────────────────────────────────────────────────
-CONF.md           ██████░░░░   ✓ récent    ✓        6/10
-PROJECTS.md       ████████░░   ✓ récent    ✓        8/10
-ROUTINES.md       █████░░░░░   ✗ périmé    ✓        5/10
-CLAUDE.local.md   ████████░░   ✓ récent    ✓        8/10
-core.md           ██████████   ✓ récent    ✓       10/10
-ctx-dev.md        ████████░░   ✓ récent    ✓        8/10
+Fichier             Complétude   Fraîcheur   Clarté   Note
+────────────────────────────────────────────────────────────
+core.md             ██████████   ✓ récent    ✓       10/10
+profil.md           ██████░░░░   ✓ récent    ✓        6/10
+memoire.md          ████████░░   ✓ récent    ✓        8/10
+ctx-cuisine.md      █████░░░░░   ✗ ancien    ✓        5/10
 ...
 ```
 
-### Étape 3 — Estimer l'usage du contexte
+## Étape 3 — Estimer la place dans la conversation
 
-Le modèle courant (claude-sonnet-4-6) dispose d'une fenêtre de **200 000 tokens**.
-L'auto-compact se déclenche autour de **~175 000 tokens** (≈87% utilisés).
+La fenêtre de conversation fait environ **200 000 unités** (« tokens »). Le nettoyage automatique se déclenche vers **~175 000** (à peu près 87 %).
 
-Estimer ce qui est déjà chargé dans cette session :
-- core.md chargé automatiquement (~1 000 tokens)
-- MEMORY.md chargé automatiquement (~500 tokens)
-- Modules ctx chargés manuellement ce jour (si applicable)
-- Historique de conversation estimé
+Estimer ce qui est déjà pris :
+- Fichiers chargés automatiquement (~1 500)
+- La conversation elle-même (estimation)
+- Les contextes chargés manuellement
 
-Afficher :
+Afficher (en évitant le jargon si possible) :
+
 ```
-Usage contexte estimé
+Place dans la conversation
 ──────────────────────────────────────────────
-Chargé auto (core + memory)  :   ~1 500 tok
-Conversation actuelle        :   ~X 000 tok
-Modules ctx chargés          :   ~Y 000 tok
-─────────────────────────────────────────────
-Total estimé                 :   ~Z 000 tok  (Z% / 200k)
-Auto-compact prévu vers      :   ~175 000 tok
-Marge restante               :   ~W 000 tok  (≈ N échanges moyens)
+Chargé au démarrage           :   ~1 500
+Conversation actuelle         :   ~X 000
+Contextes chargés             :   ~Y 000
+──────────────────────────────────────────────
+Total estimé                  :   ~Z 000  (Z% / 200k)
+Nettoyage auto vers           :   ~175 000
+Marge restante                :   ~W 000  (≈ N échanges)
 ```
 
-Un "échange moyen" ≈ 2 000 tokens (question + réponse + outils).
+Un échange moyen ≈ 2 000 unités (question + réponse).
 
-### Étape 4 — Identifier les lacunes
+## Étape 4 — Repérer les manques
 
-Lister les problèmes détectés :
-- Fichiers avec sections vides ou `TODO`
-- Dates stales (> 2 mois sans mise à jour)
-- Infos contradictoires entre fichiers
-- Modules ctx absents ou très courts (< 20 lignes)
-- Projets dans PROJECTS.md sans ETAT.md correspondant
+- Fichiers avec sections vides ou `SETUP_REQUIRED`
+- Dates anciennes (> 2 mois sans mise à jour)
+- Infos qui se contredisent entre fichiers
+- Contextes très courts (< 20 lignes)
+- Projets mentionnés dans le profil sans fichier d'avancement
 
-### Étape 5 — Verdict
+## Étape 5 — Verdict
 
 ```
 ══════════════════════════════════════════════
-  VERDICT : [PRÊT ✓ / ATTENTION ⚠ / NON PRÊT ✗]
+  VERDICT : [PRÊTE ✓ / ATTENTION ⚠ / PAS PRÊTE ✗]
 ══════════════════════════════════════════════
-Contexte global    : X/10
-Fraîcheur          : X/10
-Marge contexte     : X/10 (W k tokens libres)
+Contexte général : X/10
+Fraîcheur        : X/10
+Marge            : X/10 (W k restants)
 
-[Si ATTENTION ou NON PRÊT] : actions recommandées avant de commencer :
-  → Mettre à jour CONF.md (section X périmée)
-  → Charger /ctx [module] si tâche projet spécifique
-  → Faire /bilan si session précédente non clôturée
+[Si ATTENTION ou PAS PRÊTE] : ce qu'il faut faire avant :
+  → Remplir la section X de profil.md
+  → Charger `/ctx [nom]` si la tâche concerne un projet précis
+  → Faire `/bilan` si la session précédente n'a pas été clôturée
 ```
 
-**Règle de verdict :**
-- PRÊT ✓ : score moyen ≥ 7/10 ET marge > 80k tokens ET pas de contradiction critique
-- ATTENTION ⚠ : score 5-7 OU marge 40-80k tokens OU fichier important périmé
-- NON PRÊT ✗ : score < 5 OU marge < 40k tokens OU contradiction critique détectée
+**Règles :**
+- PRÊTE ✓ : moyenne ≥ 7/10 ET marge > 80k ET rien de contradictoire
+- ATTENTION ⚠ : 5-7 OU marge 40-80k OU un fichier important ancien
+- PAS PRÊTE ✗ : < 5 OU marge < 40k OU contradiction sérieuse
+
+Finir par une phrase courte, chaleureuse :
+> « Tu peux y aller. » / « Il manque deux ou trois trucs, tu veux qu'on répare avant ? »
