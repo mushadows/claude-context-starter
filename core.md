@@ -55,7 +55,7 @@ Avant de traiter une tâche manuellement, détecter si un skill existant ferait 
 
 | Situation détectée | Skill à proposer |
 |---|---|
-| Tâche couvre plusieurs dimensions indépendantes (audit, refonte, migration, review) | `/agents [tâche]` — parallélisme → résultat plus complet et plus rapide |
+| Tâche couvre plusieurs dimensions indépendantes (audit, refonte, migration, review) | `/orchestre [tâche]` — décompose, dispatche des subagents en parallèle avec briefings rigoureux, vérifie, synthétise. Refuse la parallélisation si elle n'apporte rien |
 | Demande sur un projet actif sans context chargé | `/ctx [module]` — charger le bon module d'abord |
 | Fin de session avec modifications importantes | `/bilan` — clôture propre + ETAT.md à jour |
 | Déploiement d'un projet | `/deploy [projet]` — workflow guidé avec vérifications |
@@ -65,7 +65,7 @@ Avant de traiter une tâche manuellement, détecter si un skill existant ferait 
 | "Où en est le projet", "reprendre le projet" | `/etat` — lire ETAT.md avant de commencer |
 | Besoin de visuel/maquette/prototype UI sur un gros projet | **Claude Design** (claude.ai/design, si inclus dans l'abonnement) — proposer, puis rédiger le prompt à coller ; outil web séparé, pas d'accès direct depuis Claude Code |
 
-**Règle** : si un skill rend la tâche plus rapide, plus complète ou moins risquée → le mentionner avant de commencer, pas après. Une phrase suffit : *"Je peux utiliser `/agents` pour analyser ça en parallèle — plus rapide. Je le lance ?"*
+**Règle** : si un skill rend la tâche plus rapide, plus complète ou moins risquée → le mentionner avant de commencer, pas après. Une phrase suffit : *"Je peux utiliser `/orchestre` pour ça — dispatch en parallèle avec vérif. Je le lance ?"*
 
 ### Proposer la création d'un nouveau skill
 

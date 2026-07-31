@@ -18,7 +18,7 @@ Ce projet change ça. Il donne à Claude un **context permanent** : un ensemble 
 - Synchronisation multi-machine via Git
 - Architecture modulaire : seul le context pertinent est chargé selon ton projet actif
 - 5 hooks automatiques (push, sauvegarde transcript, lint, démarrage de session)
-- 8 skills slash-commands (`/etat` `/ctx` `/bilan` `/deploy` `/prof` `/agents` `/check` `/today`)
+- 8 skills slash-commands (`/etat` `/ctx` `/bilan` `/deploy` `/prof` `/orchestre` `/check` `/today`)
 - Template ETAT.md par projet pour reprendre où tu t'es arrêté
 
 **Pour qui ?**
@@ -74,7 +74,7 @@ Cinq scripts exécutés automatiquement par Claude Code, sans action de ta part 
 | `/bilan` | Clôture de session : résumé + ETAT.md + push |
 | `/deploy [projet]` | Déploiement guidé avec vérifications pré-déploiement |
 | `/prof [matière]` | Génère ou met à jour les cours Obsidian d'une matière |
-| `/agents [type]` | Lance plusieurs subagents en parallèle pour une analyse complexe |
+| `/orchestre [tâche]` | Chef d'orchestre multi-agents : plan explicite → checkpoint utilisateur → dispatch parallèle avec briefings rigoureux → vérification → synthèse. Refuse la parallélisation si elle n'apporte rien |
 | `/check` | Audit du contexte avant une grosse tâche (qualité fichiers, marge contexte) |
 | `/today` | Récap des tâches du jour (projets, agenda, dettes) |
 
@@ -349,7 +349,7 @@ my-context/
 │   ├── bilan.md            ← /bilan — clôture de session
 │   ├── deploy.md           ← /deploy — déploiement guidé
 │   ├── prof.md             ← /prof — génération cours Obsidian
-│   ├── agents.md           ← /agents — analyse multi-agents en parallèle
+│   ├── orchestre.md        ← /orchestre — chef d'orchestre multi-agents
 │   ├── check.md            ← /check — audit du contexte avant grosse tâche
 │   └── today.md            ← /today — récap des tâches du jour
 ├── templates/
