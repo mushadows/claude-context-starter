@@ -5,9 +5,9 @@
 
 set -euo pipefail
 
-# Lire stdin (JSON fourni par Claude Code — cwd, session_id, etc.)
-# On n'en a pas besoin ici, mais on le consomme pour éviter le pipe cassé.
-read -r -d '' _stdin < /dev/stdin 2>/dev/null || true
+# Consommer stdin (JSON de Claude Code) pour éviter le pipe cassé.
+# Pas de `< /dev/stdin` : n'existe pas sur Git Bash Windows.
+read -r -d '' _stdin 2>/dev/null || true
 
 CONTEXT_DIR="$HOME/dev/my-context"
 

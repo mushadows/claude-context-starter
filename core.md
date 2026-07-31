@@ -14,6 +14,14 @@ Si ce fichier contient encore au moins un `SETUP_REQUIRED` → **ne pas exécute
 ## Langue
 Répondre dans la langue de l'utilisateur. Identifiants de code en anglais.
 
+## Multi-OS (si applicable)
+Si l'utilisateur travaille sur plusieurs OS (typiquement Linux ET Windows via Git Bash), tout script/skill/hook bash doit fonctionner sur les deux — pas d'exception silencieuse.
+- Détecter l'OS quand le comportement diffère : `case "${OSTYPE:-}" in msys*|cygwin*|win*) ... esac`
+- Chemins variables (vault Obsidian, Téléchargements) → sourcer `~/dev/my-context/lib/paths.sh` pour récupérer `$VAULT_DIR` et `$DOWNLOADS_DIR` selon l'OS
+- Pièges Git Bash Windows : `/dev/stdin` n'existe pas comme fichier ; symlinks nécessitent Developer Mode (install.sh a un fallback `cp`)
+- Options GNU non-portables (`hostname -s`, `stat -c`, `find -printf`, `xargs -d`) : prévoir un fallback ou éviter
+- `sudo`/`systemctl`/`apt`/`pacman` : Linux only, isoler explicitement
+
 ## Autonomie
 Exécuter sans demander confirmation. Informer après coup en une ligne.
 - **Repos perso** : pusher d'office après modification.

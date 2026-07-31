@@ -2,7 +2,8 @@
 # Hook PostCompact — injecte un rappel après compaction auto ou manuelle
 
 set -euo pipefail
-read -r -d '' _stdin < /dev/stdin 2>/dev/null || true
+# Pas de `< /dev/stdin` : n'existe pas sur Git Bash Windows.
+read -r -d '' _stdin 2>/dev/null || true
 
 CWD=$(pwd)
 PROJECT=""

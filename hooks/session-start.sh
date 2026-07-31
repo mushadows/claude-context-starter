@@ -6,7 +6,8 @@
 # Log écrit dans ~/.local/share/claude/last-session.log → lisible via /today
 
 set -euo pipefail
-read -r -d '' _input < /dev/stdin 2>/dev/null || true
+# Pas de `< /dev/stdin` : n'existe pas sur Git Bash Windows.
+read -r -d '' _input 2>/dev/null || true
 
 LOCK_DIR="$HOME/.local/share/claude"
 BOOT_LOCK="/tmp/claude-boot-$(hostname -s 2>/dev/null || hostname | cut -d. -f1)"

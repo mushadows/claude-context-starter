@@ -118,3 +118,7 @@ Quand l'utilisateur tape `ctx ?`, répondre avec un bilan court :
 - Symlinks : résoudre avec `readlink -f` avant tout Edit/Write (Linux)
 - Windows : `git config core.filemode false` dans chaque repo pour éviter les faux commits de permissions
 - Docker bind mount sur fichier individuel → monter le dossier parent (inode stale si recréé)
+- **Git Bash Windows — `/dev/stdin` n'existe pas comme fichier** : `read -r < /dev/stdin` ou `cat < /dev/stdin` échoue avec "No such file or directory" alors qu'un `read -r` (sans redirection) ou `cat` fonctionne (stdin implicite). Bloque les hooks Claude Code portés depuis Linux. Fix : retirer les `< /dev/stdin` explicites.
+- **Docker build depuis Git Bash Windows — CRLF sur `*.sh` casse le container** : sans `.gitattributes`, git checkout les fichiers avec CRLF (autocrlf=true), le build embarque `start.sh` en CRLF, Alpine cherche `/start.sh\r` → `exec: line 11: /start.sh: not found`. Fix durable : `.gitattributes` avec `*.sh text eol=lf` + `Dockerfile text eol=lf` à la racine.
+- **Docker — `docker restart` ne recharge PAS l'image après rebuild** : `docker restart` réutilise la config existante, donc l'image d'origine. Après `docker build`, il faut TOUJOURS `docker stop && docker rm && docker run ...` pour utiliser la nouvelle image.
+- **Chemins vault/téléchargements variables selon l'OS** : ne jamais hardcoder `~/dev/obsidian-vault` ou `~/Téléchargements` dans un skill/script — sourcer `~/dev/my-context/lib/paths.sh` puis utiliser `$VAULT_DIR` / `$DOWNLOADS_DIR`.
