@@ -1,15 +1,19 @@
 #!/usr/bin/env bash
-# Hook Stop — déclenché après chaque réponse Claude
-# Pushe my-context uniquement si des fichiers ont été modifiés.
-# Ajouter d'autres repos si nécessaire (ex: obsidian-vault).
+# Hook Stop — déclenché après chaque réponse de Claude
+# Par défaut : ne fait rien.
+# Si l'utilisateur a activé la sauvegarde en ligne (git dans ~/Documents/Claudia),
+# pousse automatiquement les modifications.
 
 set -euo pipefail
-
-# Consommer stdin (JSON de Claude Code) pour éviter le pipe cassé.
-# Pas de `< /dev/stdin` : n'existe pas sur Git Bash Windows.
 read -r -d '' _stdin 2>/dev/null || true
 
-CONTEXT_DIR="$HOME/dev/my-context"
+# Charger CLAUDIA_HOME
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+if [ -f "$SCRIPT_DIR/../lib/paths.sh" ]; then
+    source "$SCRIPT_DIR/../lib/paths.sh"
+else
+    CLAUDIA_HOME="${CLAUDIA_HOME:-$HOME/Documents/Claudia}"
+fi
 
 push_if_dirty() {
     local repo="$1"
@@ -25,13 +29,11 @@ push_if_dirty() {
     date_str=$(date +%Y-%m-%d)
 
     git -C "$repo" add -A 2>/dev/null
-    git -C "$repo" commit -m "${label}: session auto ${date_str}" --quiet 2>/dev/null || true
-    git -C "$repo" push --quiet 2>/dev/null || \
-        echo "[stop.sh] Erreur push $label — vérifier la connexion" >&2
+    git -C "$repo" commit -m "${label}: sauvegarde auto ${date_str}" --quiet 2>/dev/null || true
+    git -C "$repo" push --quiet 2>/dev/null || true
 }
 
-push_if_dirty "$CONTEXT_DIR" "context"
+# Push Claudia si l'user a activé la sauvegarde git
+push_if_dirty "$CLAUDIA_HOME" "claudia"
 
-# Décommenter pour pusher d'autres repos automatiquement :
-# VAULT_DIR="$HOME/dev/obsidian-vault"
-# push_if_dirty "$VAULT_DIR" "vault backup"
+exit 0

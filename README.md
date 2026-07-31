@@ -1,398 +1,121 @@
-# Claude Context Starter
+# Claudia
 
-**Un context personnalisé pour Claude qui le rend vraiment utile au quotidien.**
+**Une assistante Claude qui te connaît, se souvient de toi, et s'adapte à ton quotidien.**
 
----
-
-## C'est quoi ?
-
-Par défaut, Claude ne se souvient de rien entre deux conversations. Il ne sait pas qui tu es, comment tu travailles, quels projets tu as, quelles sont tes préférences.
-
-Ce projet change ça. Il donne à Claude un **context permanent** : un ensemble de fichiers que Claude lit à chaque démarrage pour te connaître, maintenir à jour ta config système, et s'améliorer automatiquement au fil du temps.
-
-**Ce que tu obtiens :**
-- Claude se souvient de toi entre les sessions (prénom, projets, préférences)
-- Ta config système est documentée et maintenue automatiquement
-- Claude met à jour ses propres notes après chaque session utile
-- Mode professeur pour apprendre n'importe quel sujet avec une vraie pédagogie
-- Synchronisation multi-machine via Git
-- Architecture modulaire : seul le context pertinent est chargé selon ton projet actif
-- 5 hooks automatiques (push, sauvegarde transcript, lint, démarrage de session)
-- 8 skills slash-commands (`/etat` `/ctx` `/bilan` `/deploy` `/prof` `/orchestre` `/check` `/today`)
-- Template ETAT.md par projet pour reprendre où tu t'es arrêté
-
-**Pour qui ?**
-Pour tout le monde — que tu codes ou non. L'interview initiale adapte le context à ton profil.
+Que tu sois boulanger, coach sportif, secrétaire, freelance, parent au foyer, retraité, étudiant — Claudia apprend à te connaître et t'aide pour les tâches qui reviennent, sans jamais te demander de connaissances techniques.
 
 ---
 
-## Architecture modulaire
+## Ce que Claudia fait pour toi
 
-### `core.md` — le seul fichier chargé à chaque session
+- **Elle se souvient** — prénom, activité, outils, habitudes. Tu ne répètes jamais.
+- **Elle s'adapte** — au fil des semaines, elle repère ce qui te prend du temps et propose des raccourcis.
+- **Elle te prend par la main** — au premier lancement, elle se présente et te pose une dizaine de questions simples (5-10 minutes, aucune connaissance requise).
+- **Elle reste à sa place** — jamais d'action irréversible sans te demander, jamais de sauvegarde en ligne sans ton feu vert, tes fichiers restent sur ta machine.
 
-`~/CLAUDE.md` contient une seule ligne : `@dev/my-context/core.md`
+## Ce qu'il te faut
 
-`core.md` est court (~100 lignes) et contient :
-- Ton profil (nom, OS, préférences)
-- Les règles d'autonomie
-- La table des modules context (quel `ctx-*.md` charger selon le projet actif)
-- La checklist de début de session
-
-**Avant** : `~/CLAUDE.md` importait 8 fichiers (~20 000 tokens à chaque session).
-**Après** : seul `core.md` est chargé (~500 tokens), les modules sont injectés à la demande.
-
-### `contexts/` — modules chargés selon le projet actif
-
-Chaque fichier `ctx-[nom].md` contient le context d'un projet ou d'un domaine spécifique.
-Claude charge automatiquement le bon module selon le dossier où tu travailles.
-
-```
-contexts/
-├── ctx-dev.md          ← règles de code (à adapter à tes langages)
-├── ctx-[projet].md     ← à créer pour chaque projet actif
-└── README.md           ← comment ajouter un module
-```
-
-### `hooks/` — automatismes transparents
-
-Cinq scripts exécutés automatiquement par Claude Code, sans action de ta part :
-
-| Hook | Quand | Ce qu'il fait |
-|---|---|---|
-| `session-start.sh` | Au démarrage | Pull des repos, clone des projets manquants |
-| `stop.sh` | Après chaque réponse | Pushe `my-context` si des fichiers ont été modifiés |
-| `pre-compact.sh` | Avant compaction | Sauvegarde le transcript dans `~/.claude/session-state/` |
-| `post-compact.sh` | Après compaction | Restaure le résumé de session |
-| `post-edit.sh` | Après chaque Edit/Write | Lance le linter (tsc, go vet, shellcheck) selon l'extension |
-
-### `skills/` — slash-commands disponibles dans Claude
-
-| Commande | Ce qu'elle fait |
-|---|---|
-| `/etat` | Affiche ou crée `ETAT.md` pour le projet courant |
-| `/ctx [module]` | Charge manuellement un module de context |
-| `/bilan` | Clôture de session : résumé + ETAT.md + push |
-| `/deploy [projet]` | Déploiement guidé avec vérifications pré-déploiement |
-| `/prof [matière]` | Génère ou met à jour les cours Obsidian d'une matière |
-| `/orchestre [tâche]` | Chef d'orchestre multi-agents : plan explicite → checkpoint utilisateur → dispatch parallèle avec briefings rigoureux → vérification → synthèse. Refuse la parallélisation si elle n'apporte rien |
-| `/check` | Audit du contexte avant une grosse tâche (qualité fichiers, marge contexte) |
-| `/today` | Récap des tâches du jour (projets, agenda, dettes) |
-
-### `templates/` — templates réutilisables
-
-- `etat-template.md` — utilisé par `/etat` pour créer un ETAT.md structuré dans chaque projet
-
----
-
----
-
-## Prérequis
-
-- Un ordinateur (Windows, macOS, ou Linux)
+- Un ordinateur (Windows, macOS ou Linux)
 - Une connexion internet
-- Un abonnement Claude Code (payant — [voir les tarifs](https://claude.ai/claude-code))
-- Environ 15-20 minutes pour l'installation initiale
+- Un compte Claude ([anthropic.com](https://claude.ai) — la version gratuite suffit pour commencer)
+
+Rien d'autre. Pas besoin de savoir taper des commandes techniques — la commande d'installation ci-dessous s'occupe de tout (elle installe elle-même Node.js et Claude Code si tu ne les as pas).
 
 ---
 
-## Installation — étape par étape
+## Installation en 1 commande
 
-### Étape 1 — Créer un compte GitHub
+### Sur Mac ou Linux
 
-GitHub est le service où ton context sera sauvegardé et synchronisé entre tes machines.
+Ouvre l'application **Terminal** et colle cette ligne, puis appuie sur Entrée :
 
-1. Va sur **[github.com](https://github.com)**
-2. Clique sur **"Sign up"** en haut à droite
-3. Remplis le formulaire (email, mot de passe, nom d'utilisateur)
-4. Confirme ton email
+```bash
+curl -fsSL https://raw.githubusercontent.com/mushadows/claudia/main/bootstrap.sh | bash
+```
 
-> Si tu as déjà un compte GitHub, passe à l'étape 2.
+### Sur Windows
+
+Ouvre **PowerShell** (tape `PowerShell` dans le menu Démarrer) et colle cette ligne, puis appuie sur Entrée :
+
+```powershell
+iwr -useb https://raw.githubusercontent.com/mushadows/claudia/main/bootstrap.ps1 | iex
+```
+
+L'installation prend 3 à 5 minutes selon ta connexion. Aucun mot de passe administrateur ne sera demandé. Tout est visible à l'écran, tu peux relancer la commande à tout moment si ça coince.
 
 ---
 
-### Étape 2 — Copier ce projet sur ton compte
+## Premiers pas
 
-1. En haut de cette page GitHub, clique sur **"Use this template"** → **"Create a new repository"**
-2. Donne un nom à ton repo : `my-context` (recommandé)
-3. Mets-le en **Private** (tes infos personnelles seront dedans)
-4. Clique sur **"Create repository"**
+Une fois l'installation terminée, tape simplement :
 
-Tu as maintenant ta propre copie du projet sur ton compte GitHub.
-
----
-
-### Étape 3 — Installer Git
-
-Git est l'outil qui synchronise ton context entre GitHub et ton ordinateur.
-
-**Windows :**
-1. Va sur **[git-scm.com/download/win](https://git-scm.com/download/win)**
-2. Télécharge et installe Git (clique "Next" partout, les options par défaut sont bonnes)
-3. Ouvre **Git Bash** (il vient d'être installé) ou **PowerShell**
-
-**macOS :**
-1. Ouvre **Terminal** (Applications → Utilitaires → Terminal)
-2. Tape : `git --version`
-3. Si Git n'est pas installé, macOS te proposera de l'installer automatiquement — accepte
-
-**Linux :**
-```bash
-# Ubuntu/Debian
-sudo apt install git
-
-# Arch Linux
-sudo pacman -S git
-
-# Fedora
-sudo dnf install git
 ```
-
-**Vérifier que Git est installé :**
-```bash
-git --version
-# Doit afficher quelque chose comme : git version 2.x.x
-```
-
----
-
-### Étape 4 — Configurer Git avec ton identité
-
-```bash
-git config --global user.name "Ton Prénom"
-git config --global user.email "ton@email.com"
-```
-
-Remplace par ton vrai prénom et l'email utilisé sur GitHub.
-
----
-
-### Étape 5 — Configurer l'authentification GitHub
-
-Pour que Git puisse envoyer tes fichiers sur GitHub, tu dois te connecter.
-
-**Option recommandée — SSH (une fois configuré, c'est transparent) :**
-
-1. Générer une clé SSH :
-```bash
-ssh-keygen -t ed25519 -C "ton@email.com"
-# Appuie sur Entrée 3 fois (accepter les options par défaut)
-```
-
-2. Afficher ta clé publique :
-```bash
-# Mac/Linux
-cat ~/.ssh/id_ed25519.pub
-
-# Windows (Git Bash)
-cat ~/.ssh/id_ed25519.pub
-```
-
-3. Copier tout le texte affiché (commence par `ssh-ed25519`)
-
-4. Sur GitHub :
-   - Clique sur ta photo de profil → **Settings**
-   - Dans le menu gauche : **SSH and GPG keys**
-   - Clique **"New SSH key"**
-   - Colle ta clé dans le champ "Key"
-   - Clique **"Add SSH key"**
-
-5. Tester :
-```bash
-ssh -T git@github.com
-# Doit afficher : Hi [ton-nom]! You've successfully authenticated...
-```
-
----
-
-### Étape 6 — Cloner ton context
-
-Maintenant on copie ton repo GitHub sur ton ordinateur.
-
-**Sur Mac/Linux :**
-```bash
-mkdir -p ~/dev
-cd ~/dev
-git clone git@github.com:TON-USERNAME/my-context.git
-```
-
-**Sur Windows (dans Git Bash) :**
-```bash
-mkdir -p ~/dev
-cd ~/dev
-git clone git@github.com:TON-USERNAME/my-context.git
-```
-
-Remplace `TON-USERNAME` par ton nom d'utilisateur GitHub.
-
----
-
-### Étape 7 — Installer Claude Code
-
-Claude Code est l'interface en ligne de commande de Claude.
-
-**Prérequis : Node.js**
-Si tu n'as pas Node.js installé :
-- Va sur **[nodejs.org](https://nodejs.org)** → télécharge la version LTS → installe
-
-**Installer Claude Code :**
-```bash
-npm install -g @anthropic-ai/claude-code
-```
-
-**Vérifier l'installation :**
-```bash
-claude --version
-```
-
----
-
-### Étape 8 — Lancer le script d'installation
-
-Ce script va créer le fichier de configuration qui active ton context.
-
-**Sur Mac/Linux :**
-```bash
-cd ~/dev/my-context
-bash install.sh
-```
-
-**Sur Windows (Git Bash) :**
-```bash
-cd ~/dev/my-context
-bash install.sh
-```
-
----
-
-### Étape 9 — Laisser Claude configurer ton context
-
-C'est l'étape magique. Lance Claude Code depuis ton dossier home :
-
-**Mac/Linux :**
-```bash
-cd ~
 claude
 ```
 
-**Windows :**
-```bash
-cd ~
-claude
-```
+Claudia se présente et t'accueille. Elle va te poser une dizaine de questions simples pour apprendre à te connaître. Tu peux répondre « je ne sais pas » à tout moment, elle choisira quelque chose de raisonnable et continuera.
 
-Claude détectera les marqueurs `SETUP_REQUIRED` dans `core.md` et suivra le déroulé prévu dans `INTERVIEW.md` pour te poser des questions simples sur toi, tes outils, tes projets — aucune connaissance technique n'est nécessaire, Claude s'occupe de toute la partie fichiers/Git lui-même, tu n'as aucune commande à taper pendant l'interview.
+À la fin, elle te propose d'essayer une vraie tâche avec toi (ranger un dossier, rédiger un mail-type, décortiquer une corvée). C'est le meilleur moyen de voir ce qu'elle sait faire.
 
-**La configuration dure environ 5-10 minutes**, par petits groupes de questions. Tu peux répondre "je ne sais pas" à tout moment. À la fin, ton context est prêt et sauvegardé automatiquement.
+**Après ça, à toi de jouer.** Parle-lui normalement, comme à une collègue qui prend des notes. Elle se souviendra de tout la prochaine fois.
 
 ---
 
-## Utilisation au quotidien
+## Comment ajuster Claudia (à tout moment)
 
-**Lancement :** toujours depuis ton dossier home (`~`) pour que le context soit chargé :
-
-```bash
-cd ~
-claude
-```
-
-**Ce qui se passe à chaque démarrage :**
-- Claude vérifie si ton context est à jour (git pull automatique)
-- Claude clone les projets manquants sur ta machine si besoin
-- Claude est au courant de qui tu es et de tes projets en cours
-
-**Ce qui se passe au fil du temps :**
-- Claude met à jour `CONF.md` après chaque changement système
-- Claude met à jour `PROJECTS.md` après chaque nouveau projet
-- Si tu révèles une préférence en conversation, Claude la mémorise dans `CLAUDE.local.md`
-
----
-
-## Synchronisation multi-machine
-
-Pour utiliser ton context sur une autre machine :
-
-1. Installe Git + Claude Code sur la nouvelle machine (étapes 3-4-5-7 ci-dessus)
-2. Clone ton repo :
-   ```bash
-   mkdir -p ~/dev
-   cd ~/dev
-   git clone git@github.com:TON-USERNAME/my-context.git
-   cd my-context
-   bash install.sh
-   ```
-3. Lance Claude : `cd ~ && claude`
-
-Ton context complet sera récupéré depuis GitHub et tu seras immédiatement opérationnel.
-
----
-
-## Structure du projet
+Une commande unique donne accès à tout :
 
 ```
-my-context/
-├── CLAUDE.md               ← Une ligne : @dev/my-context/core.md
-├── core.md                 ← Context chargé à chaque session (profil, modules, checklist)
-├── INTERVIEW.md             ← Déroulé de la configuration initiale (lu une seule fois, au premier lancement)
-├── contexts/
-│   ├── ctx-dev.md          ← Règles de code (à adapter)
-│   ├── ctx-[projet].md     ← À créer pour chaque projet actif
-│   └── README.md           ← Comment ajouter un module
-├── hooks/
-│   ├── session-start.sh    ← Pull repos + clone projets manquants au démarrage
-│   ├── stop.sh             ← Auto-push my-context après réponse
-│   ├── pre-compact.sh      ← Sauvegarde transcript avant compaction
-│   ├── post-compact.sh     ← Restaure le résumé après compaction
-│   └── post-edit.sh        ← Lint après Edit/Write (tsc, go vet, shellcheck)
-├── skills/
-│   ├── etat.md             ← /etat — ETAT.md du projet courant
-│   ├── ctx.md              ← /ctx — charger un module de context
-│   ├── bilan.md            ← /bilan — clôture de session
-│   ├── deploy.md           ← /deploy — déploiement guidé
-│   ├── prof.md             ← /prof — génération cours Obsidian
-│   ├── orchestre.md        ← /orchestre — chef d'orchestre multi-agents
-│   ├── check.md            ← /check — audit du contexte avant grosse tâche
-│   └── today.md            ← /today — récap des tâches du jour
-├── templates/
-│   └── etat-template.md    ← Template utilisé par /etat
-├── CLAUDE.local.md         ← Ton profil personnel (généré par l'interview)
-├── CONF.md                 ← Ta config système (généré + maintenu automatiquement)
-├── PROJECTS.md             ← Tes projets actifs (généré + maintenu automatiquement)
-├── ROUTINES.md             ← Checklists de maintenance (généré selon ton profil)
-├── RULES_GENERIC.md        ← Règles de code génériques (si tu codes)
-├── RULES_LANGAGES.md       ← Règles par langage (si tu codes)
-├── PROFESSOR.md            ← Mode apprentissage pédagogique complet
-├── settings-template.json  ← Template settings.json avec hooks configurés
-└── install.sh              ← Script d'installation (hooks + skills + CLAUDE.md)
+/claudia
 ```
 
----
-
-## FAQ
-
-**Q : Est-ce que Claude peut lire mes fichiers privés ?**
-Claude Code tourne localement sur ta machine. Il ne lit que les fichiers que tu lui donnes accès ou dans les dossiers où tu lances la commande. Tes fichiers ne sont pas uploadés automatiquement.
-
-**Q : Mon context est-il sécurisé sur GitHub ?**
-Ton repo est en privé — seul ton compte GitHub peut y accéder. Ne mets jamais de mots de passe ou de tokens dans ces fichiers.
-
-**Q : Puis-je modifier les fichiers générés ?**
-Oui, tout le temps. Claude les mettra à jour si tu lui demandes, ou automatiquement quand c'est pertinent.
-
-**Q : Est-ce que ça marche sur Windows ?**
-Oui. Utilise Git Bash pour les commandes terminal. Les chemins utilisent `~` qui correspond à `C:\Users\ton-nom\` sur Windows.
-
-**Q : Et si je ne code pas ?**
-Lors de l'interview, Claude adapte le context à ton profil. Les sections de règles de code seront simplifiées ou ignorées. Le mode professeur fonctionne pour n'importe quel sujet, pas seulement la programmation.
-
-**Q : Que se passe-t-il si je perds mon ordinateur ?**
-Comme tout est sur GitHub, tu peux tout récupérer en quelques minutes sur n'importe quel autre ordinateur. Voir "Synchronisation multi-machine" ci-dessus.
+Un petit menu s'affiche avec sept options :
+1. Modifier ce qu'elle sait de toi
+2. Ajouter une info à retenir
+3. Voir ou créer un raccourci
+4. Brancher un outil (agenda, drive, mails)
+5. Revoir ce qu'on a fait ensemble récemment
+6. Faire une pause ou la désinstaller
+7. Rien, retour à la conversation
 
 ---
 
-## Contribuer
+## Où sont tes fichiers
 
-Ce projet est open source. Si tu as des améliorations à proposer (nouvelles fonctionnalités, corrections, traductions), ouvre une issue ou une pull request.
+Tes fichiers Claudia sont dans un dossier visible sur ta machine :
+
+- **Mac / Linux** : `~/Documents/Claudia/`
+- **Windows** : `Documents\Claudia\`
+
+Tu peux les ouvrir avec le bloc-notes ou n'importe quel éditeur — c'est du texte simple. Si tu supprimes le dossier, tu supprimes Claudia (mais elle te préviendra la prochaine fois qu'elle sera relancée).
 
 ---
 
-*Inspiré du context personnel de [@mushadows](https://github.com/mushadows)*
+## Confidentialité
+
+- **Tes fichiers restent sur ta machine.** Aucune sauvegarde en ligne par défaut.
+- **Tes conversations passent par les serveurs d'Anthropic** (l'entreprise derrière Claude), aux États-Unis, comme pour n'importe quelle utilisation de Claude. Anthropic n'entraîne pas son IA sur tes conversations par défaut (opt-out actif depuis 2025), mais vérifie tes réglages sur claude.ai si c'est un sujet.
+- **Pour des données sensibles** (santé, juridique, données client détaillées) : Claudia te préviendra à chaque fois. Sur le compte gratuit ou Pro, il n'y a pas de contrat de protection renforcé (DPA) — pour cet usage, regarde l'offre Team d'Anthropic.
+- **Désinstallation complète** disponible à tout moment via `/claudia` puis option 6.
+
+---
+
+## En cas de souci
+
+- **L'installation a échoué** : relance la même commande — c'est fait pour être ré-exécuté sans casse. Un log complet est écrit dans `~/.claudia/logs/`.
+- **Une question à Claudia** : tape simplement ta question, elle te répondra en langage normal.
+- **Un bug** : ouvre une issue sur [github.com/mushadows/claudia/issues](https://github.com/mushadows/claudia/issues).
+
+---
+
+## Pour les développeurs curieux
+
+Tout le code source est ici, ouvert et modifiable :
+- `bootstrap.sh` / `bootstrap.ps1` — les scripts d'installation
+- `core.md` — la personnalité et les règles de Claudia
+- `INTERVIEW.md` — le déroulé du premier accueil
+- `skills/*.md` — les raccourcis disponibles
+- `hooks/*.sh` — les automatismes déclenchés par Claude Code
+- `internals/` — spécs techniques, chemins OS, mécanismes internes
+
+Contributions bienvenues. Voir `internals/README.md` pour les détails.

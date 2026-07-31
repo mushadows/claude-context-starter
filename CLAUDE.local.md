@@ -1,125 +1,52 @@
-# CLAUDE.local.md
-> Remplacer les SETUP_REQUIRED par tes valeurs avant la première session.
+# CLAUDE.local.md — Ce que je sais de la personne
+> Rempli par l'interview initiale, enrichi automatiquement au fil des conversations (avec confirmation à chaque ajout).
 
-## Cascade — mises à jour en chaîne
+## Personne
 
-Modifier ce fichier → mettre à jour aussi :
-- `memory/` — si une préférence ou habitude utilisateur change
-- `CONF.md` — si une erreur est liée à une config système spécifique
+- **Prénom / surnom** : SETUP_REQUIRED
+- **Activité** : SETUP_REQUIRED
+- **Machine principale** : SETUP_REQUIRED (détecté automatiquement)
+- **Tutoiement / vouvoiement** : SETUP_REQUIRED
+- **Style de réponse** : SETUP_REQUIRED
 
----
+## Corvées à alléger
 
-## Auto-amélioration
+<!-- Ce que la personne a signalé vouloir déléguer, résumé en 1 ligne chacun -->
+_(à remplir pendant l'interview)_
 
-Après **chaque action**, mettre à jour immédiatement le fichier concerné et pusher :
+## Outils utilisés
 
-| Action effectuée | Fichier à mettre à jour |
-|---|---|
-| Problème système résolu | `CONF.md` |
-| Nouveau projet créé ou archivé | `PROJECTS.md` |
-| Préférence ou habitude utilisateur révélée | `CLAUDE.local.md` + fichier mémoire |
-| Erreur commise | `CLAUDE.local.md` (section "Erreurs à ne pas reproduire") |
-| Changement majeur dans le context | `claude-context-starter/` — propager si applicable |
+<!-- Utile pour proposer les bons connecteurs plus tard -->
+- Agenda : _(à remplir)_
+- Stockage documents : _(à remplir)_
+- Prise de notes : _(à remplir)_
+- Autres outils : _(à ajouter au fil des conversations)_
 
-Ne jamais attendre que l'utilisateur demande de mettre à jour le context.
-Toujours pusher après mise à jour.
+## Zones sensibles (à consulter avant toute action)
 
-## §1 — Détecter l'OS (silencieux, à chaque début de session)
+<!-- Dossiers, sujets, types de données à ne jamais toucher/publier/partager sans demander -->
+_(à remplir si la personne en a mentionné)_
 
-```bash
-if [[ "$OSTYPE" == "msys" || "$OSTYPE" == "cygwin" || -n "${WINDIR:-}" ]]; then
-    echo "windows"
-    # HOME_DIR = C:/Users/[SETUP_REQUIRED]/
-    # DOWNLOADS = C:/Users/[SETUP_REQUIRED]/Downloads/
-    # OBSIDIAN  = C:/Users/[SETUP_REQUIRED]/Documents/Obsidian/  (si applicable)
-else
-    echo "linux"
-    # HOME_DIR = ~/
-    # DOWNLOADS = ~/Téléchargements/  (ou ~/Downloads/ selon la locale)
-    # OBSIDIAN  = ~/dev/obsidian-vault/  (si applicable)
-fi
-```
+## Habitudes constatées
 
-## §2 — Pull repos en début de session
+<!-- Enrichi automatiquement — Claudia note les patterns qu'elle observe -->
+_(vide au démarrage)_
 
-**Linux :**
-```bash
-bash ~/dev/my-context/install.sh 2>&1 | grep -E "✗|⚠|erreur" || true
-git -C ~/dev/obsidian-vault pull 2>/dev/null || true  # si applicable
-for dir in ~/dev/*/; do
-    name=$(basename "$dir")
-    [[ "$name" == "my-context" || "$name" == "obsidian-vault" ]] && continue
-    [ -d "$dir/.git" ] || continue
-    git -C "$dir" pull --ff-only 2>&1 | grep -v "Already up to date" | grep -v "Déjà à jour" || true
-done
-```
+## Choses à ne pas oublier
 
-**Windows (Git Bash) :**
-```bash
-git -C ~/dev/my-context pull
-# Vault Obsidian (adapter le chemin) :
-# git -C "C:/Users/[SETUP_REQUIRED]/Documents/Obsidian" pull 2>/dev/null || true
-```
-
-Note : sur Windows, `~/` = `C:/Users/[username]/` en Git Bash.
-
-## §3 — Auto-cloner les projets manquants
-
-Source de vérité : `PROJECTS.md`. Script dans le hook `session-start.sh` (section pull des projets).
-Sur Windows : adapter les chemins vers `C:/Users/[user]/dev/`.
-
-## §8 — Scanner les téléchargements
-
-**Linux (français) :** `ls ~/Téléchargements/`
-**Linux (anglais) :** `ls ~/Downloads/`
-**Windows (Git Bash) :** `ls "$USERPROFILE/Downloads/" 2>/dev/null || ls ~/Downloads/ 2>/dev/null`
-
-Règle : cours → `notes/` de la matière, TPs → `TP/`, inconnus → `a-trier/`.
-Ne jamais scanner `_en-attente/` s'il existe — contenu déjà traité.
-
-## §9 — Vérifier la structure du home
-
-**Linux uniquement** — adapter ALLOWED selon ta structure :
-```bash
-ALLOWED=(dev Documents Téléchargements VM wallpaper)  # SETUP_REQUIRED : adapter
-```
-
-**Windows** : non applicable (structure NTFS différente, Desktop/AppData/etc. à ne pas toucher).
+<!-- Faits ponctuels que la personne a demandé à retenir -->
+_(vide au démarrage)_
 
 ---
 
-## Projets
+## Auto-mise à jour (règle interne)
 
-Si le dossier d'un projet listé dans `PROJECTS.md` est absent sur la machine, le cloner :
-- Linux : dans `~/dev/`
-- Windows : dans `C:/Users/[SETUP_REQUIRED]/dev/`
+Ce fichier est mis à jour par Claudia elle-même, avec ces règles :
 
-## Garde-fou contexte — `ctx ?`
+- **Toujours annoncer** en une ligne ce qui est ajouté/modifié : *« Petite note : j'ajoute X à ton profil, dis "annule" si je me suis trompée. »*
+- **Jamais silencieusement**
+- Ne pas dupliquer une info déjà présente
+- Si une info devient obsolète (« je n'utilise plus Notion »), la retirer, pas juste l'annoter
+- Priorité aux informations que la personne dit explicitement (« retiens ça »)
 
-Quand l'utilisateur tape `ctx ?`, répondre avec un bilan court :
-- Projet / sujet en cours, dernière action, décisions prises
-- Si flou → "Contexte dégradé — nouvelle session recommandée."
-
-## Habitudes utilisateur
-
-- SETUP_REQUIRED : compléter après les premières sessions
-
-## Profil utilisateur
-
-- **Nom** : SETUP_REQUIRED
-- **Email** : SETUP_REQUIRED
-- **GitHub** : SETUP_REQUIRED
-- **OS** : SETUP_REQUIRED
-- **Shell** : SETUP_REQUIRED
-
-## Erreurs à ne pas reproduire
-
-- Toujours `git pull` avant de modifier un fichier dans un repo git
-- Symlinks : résoudre avec `readlink -f` avant tout Edit/Write (Linux)
-- Windows : `git config core.filemode false` dans chaque repo pour éviter les faux commits de permissions
-- Docker bind mount sur fichier individuel → monter le dossier parent (inode stale si recréé)
-- **Claude Code hooks — schéma JSON strict par `hookEventName`** : `hookSpecificOutput.additionalContext` n'est valide que pour `UserPromptSubmit`, `PostToolUse` et `PostToolBatch`. Pour tous les autres events (`PostCompact`, `Stop`, `PreCompact`, `SessionStart`, etc.), utiliser `systemMessage` (top-level). Sinon "Hook JSON output validation failed" silencieux.
-- **Git Bash Windows — `/dev/stdin` n'existe pas comme fichier** : `read -r < /dev/stdin` ou `cat < /dev/stdin` échoue avec "No such file or directory" alors qu'un `read -r` (sans redirection) ou `cat` fonctionne (stdin implicite). Bloque les hooks Claude Code portés depuis Linux. Fix : retirer les `< /dev/stdin` explicites.
-- **Docker build depuis Git Bash Windows — CRLF sur `*.sh` casse le container** : sans `.gitattributes`, git checkout les fichiers avec CRLF (autocrlf=true), le build embarque `start.sh` en CRLF, Alpine cherche `/start.sh\r` → `exec: line 11: /start.sh: not found`. Fix durable : `.gitattributes` avec `*.sh text eol=lf` + `Dockerfile text eol=lf` à la racine.
-- **Docker — `docker restart` ne recharge PAS l'image après rebuild** : `docker restart` réutilise la config existante, donc l'image d'origine. Après `docker build`, il faut TOUJOURS `docker stop && docker rm && docker run ...` pour utiliser la nouvelle image.
-- **Chemins vault/téléchargements variables selon l'OS** : ne jamais hardcoder `~/dev/obsidian-vault` ou `~/Téléchargements` dans un skill/script — sourcer `~/dev/my-context/lib/paths.sh` puis utiliser `$VAULT_DIR` / `$DOWNLOADS_DIR`.
+Les détails techniques (scripts de démarrage, gestion multi-machine, procédures de maintenance) sont dans `internals/` — pas ici.

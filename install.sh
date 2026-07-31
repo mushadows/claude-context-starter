@@ -1,195 +1,128 @@
 #!/usr/bin/env bash
-# install.sh — Claude Context Starter
-# Configure Claude Code depuis ~/dev/my-context/
-# Idempotent et non-destructif : ne détruit jamais de données existantes
-# Usage : bash ~/dev/my-context/install.sh [--yes]
+# install.sh — Configure Claude Code depuis le dossier Claudia
+# Appelé par bootstrap.sh / bootstrap.ps1. Peut aussi être lancé manuellement.
+# Idempotent et non-destructif.
+#
+# Usage :
+#   bash install.sh [--yes] [--claudia-home <path>]
 
 set -e
 
-CONTEXT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-CLAUDE_DIR="$HOME/.claude"
-AUTO_YES="${1:-}"
-ERRORS=0
-
+# ────────────────────────────────────────────────────────────────
 # Détection OS
+# ────────────────────────────────────────────────────────────────
 IS_WINDOWS=false
-if [[ "$OSTYPE" == "msys" || "$OSTYPE" == "cygwin" || -n "${WINDIR:-}" ]]; then
-    IS_WINDOWS=true
+case "${OSTYPE:-}" in
+    msys*|cygwin*|win*) IS_WINDOWS=true ;;
+esac
+[ -n "${WINDIR:-}" ] && IS_WINDOWS=true
+
+# ────────────────────────────────────────────────────────────────
+# Args
+# ────────────────────────────────────────────────────────────────
+AUTO_YES=false
+CLAUDIA_HOME=""
+while [ $# -gt 0 ]; do
+    case "$1" in
+        --yes) AUTO_YES=true; shift ;;
+        --claudia-home) CLAUDIA_HOME="$2"; shift 2 ;;
+        *) shift ;;
+    esac
+done
+
+# Chemin par défaut si non fourni
+if [ -z "$CLAUDIA_HOME" ]; then
+    # Windows Git Bash : Documents peut être redirigé (OneDrive)
+    if $IS_WINDOWS && [ -f "$LOCALAPPDATA/Claudia/root" ]; then
+        CLAUDIA_HOME="$(cat "$LOCALAPPDATA/Claudia/root")"
+    elif [ -f "$HOME/.claudia/root" ]; then
+        CLAUDIA_HOME="$(cat "$HOME/.claudia/root")"
+    else
+        # Auto-détection : le dossier où se trouve ce script
+        CLAUDIA_HOME="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+    fi
 fi
+
+CLAUDE_DIR="$HOME/.claude"
+ERRORS=0
 
 green() { echo "  ✓ $1"; }
 warn()  { echo "  ⚠ $1"; }
 err()   { echo "  ✗ $1"; ERRORS=$((ERRORS+1)); }
 
 echo ""
-echo "==================================================="
-echo "  Claude Context Starter — Installation"
-echo "==================================================="
+echo "Configuration de Claude Code…"
+echo "  Source  : $CLAUDIA_HOME"
+echo "  Cible   : $CLAUDE_DIR"
 echo ""
 
-# Vérifier que le dossier est bien dans ~/dev/my-context/
-EXPECTED_PATH="$HOME/dev/my-context"
-if [ "$CONTEXT_DIR" != "$EXPECTED_PATH" ]; then
-    echo "⚠️  Ce repo n'est pas dans le bon dossier."
-    echo "   Chemin actuel : $CONTEXT_DIR"
-    echo "   Chemin attendu : $EXPECTED_PATH"
-    echo ""
-    echo "   Pour corriger (Linux/Git Bash) :"
-    echo "   mv \"$CONTEXT_DIR\" \"$EXPECTED_PATH\""
-    echo "   cd \"$EXPECTED_PATH\" && bash install.sh"
-    echo ""
-    echo "   Pour corriger (PowerShell) :"
-    echo "   Move-Item \"$CONTEXT_DIR\" \"$EXPECTED_PATH\""
-    echo ""
-    exit 1
-fi
+# ────────────────────────────────────────────────────────────────
+# Helper : lien symbolique OU copie (Windows sans Dev Mode)
+# ────────────────────────────────────────────────────────────────
+link_or_copy() {
+    local src="$1" dst="$2"
+    if [ -e "$dst" ] || [ -L "$dst" ]; then rm -f "$dst"; fi
+    if $IS_WINDOWS; then
+        # Copie systématique sur Windows (symlinks demandent Dev Mode ou admin)
+        cp "$src" "$dst"
+    else
+        ln -sf "$src" "$dst"
+    fi
+}
 
-green "Dossier détecté : $CONTEXT_DIR"
-if $IS_WINDOWS; then
-    echo ""
-    warn "Windows détecté (Git Bash/MSYS). Les symlinks requièrent le mode développeur."
-    warn "Si des hooks/skills échouent → Paramètres Windows → Système → Pour les développeurs → activer."
-    warn "Alternative : utiliser WSL2 pour une expérience identique à Linux."
-fi
-echo ""
+# ────────────────────────────────────────────────────────────────
+# 1. Dossiers ~/.claude/
+# ────────────────────────────────────────────────────────────────
+mkdir -p "$CLAUDE_DIR/hooks" "$CLAUDE_DIR/commands"
+green "Dossiers Claude Code prêts"
 
-# ── 1. Sync context depuis git ──────────────────────────────────────────────
-echo "[1/6] Sync context depuis git..."
-if git -C "$CONTEXT_DIR" pull --ff-only 2>/dev/null; then
-    green "context à jour"
-else
-    warn "git pull impossible (pas de réseau ou conflits) — on continue avec l'état local"
-fi
-
-# ── 2. Créer les dossiers ~/.claude/ nécessaires ───────────────────────────
-echo "[2/6] Dossiers ~/.claude/..."
-mkdir -p "$CLAUDE_DIR/hooks"
-mkdir -p "$CLAUDE_DIR/commands"
-green "~/.claude/hooks/ et ~/.claude/commands/ prêts"
-
-# ── 3. Symlinks hooks (.sh) ────────────────────────────────────────────────
-echo "[3/6] Hooks..."
+# ────────────────────────────────────────────────────────────────
+# 2. Hooks (.sh)
+# ────────────────────────────────────────────────────────────────
 HOOK_COUNT=0
-for hook in "$CONTEXT_DIR/hooks/"*.sh; do
+for hook in "$CLAUDIA_HOME/hooks/"*.sh; do
     [ -f "$hook" ] || continue
     name=$(basename "$hook")
-    target="$CLAUDE_DIR/hooks/$name"
-    chmod +x "$hook"
-    [ -L "$target" ] && rm "$target"
-    if [ -f "$target" ] && [ ! -L "$target" ]; then
-        warn "hooks/$name existe (non-symlink) — non écrasé, backup manuel requis"
-        continue
-    fi
-    if ln -sf "$hook" "$target" 2>/dev/null && [ -L "$target" ]; then
-        green "hooks/$name → symlink"
-    else
-        cp "$hook" "$target"
-        warn "hooks/$name → copié (symlink indisponible — Windows sans Developer Mode ?)"
-    fi
+    chmod +x "$hook" 2>/dev/null || true
+    link_or_copy "$hook" "$CLAUDE_DIR/hooks/$name"
     HOOK_COUNT=$((HOOK_COUNT+1))
 done
-[ $HOOK_COUNT -eq 0 ] && warn "Aucun hook .sh trouvé dans hooks/"
+green "$HOOK_COUNT automatismes installés"
 
-# ── 4. Symlinks skills (.md) ───────────────────────────────────────────────
-echo "[4/6] Skills..."
+# ────────────────────────────────────────────────────────────────
+# 3. Skills (.md)
+# ────────────────────────────────────────────────────────────────
 SKILL_COUNT=0
-for skill in "$CONTEXT_DIR/skills/"*.md; do
+for skill in "$CLAUDIA_HOME/skills/"*.md; do
     [ -f "$skill" ] || continue
     name=$(basename "$skill")
-    target="$CLAUDE_DIR/commands/$name"
-    [ -L "$target" ] && rm "$target"
-    if [ -f "$target" ] && [ ! -L "$target" ]; then
-        warn "commands/$name existe (non-symlink) — non écrasé"
-        continue
-    fi
-    if ln -sf "$skill" "$target" 2>/dev/null && [ -L "$target" ]; then
-        green "commands/$name → symlink"
-    else
-        cp "$skill" "$target"
-        warn "commands/$name → copié (symlink indisponible)"
-    fi
+    link_or_copy "$skill" "$CLAUDE_DIR/commands/$name"
     SKILL_COUNT=$((SKILL_COUNT+1))
 done
-[ $SKILL_COUNT -eq 0 ] && warn "Aucun skill .md trouvé dans skills/"
+green "$SKILL_COUNT raccourcis installés"
 
-# ── 5. ~/CLAUDE.md ─────────────────────────────────────────────────────────
-echo "[5/6] ~/CLAUDE.md..."
-CLAUDE_MD="$HOME/CLAUDE.md"
-CORE_LINE="@dev/my-context/core.md"
-
-if [ ! -f "$CONTEXT_DIR/core.md" ]; then
-    warn "core.md absent — CLAUDE.md non modifié"
-elif [ ! -f "$CLAUDE_MD" ]; then
-    echo "$CORE_LINE" > "$CLAUDE_MD"
-    green "CLAUDE.md créé"
-elif grep -qF "$CORE_LINE" "$CLAUDE_MD"; then
-    green "CLAUDE.md déjà à jour"
-else
-    # CLAUDE.md existe avec un autre contenu → backup + remplacement
-    BACKUP="${CLAUDE_MD}.bak-$(date +%Y%m%d-%H%M%S)"
-    if [ "$AUTO_YES" = "--yes" ]; then
-        cp "$CLAUDE_MD" "$BACKUP"
-        echo "$CORE_LINE" > "$CLAUDE_MD"
-        green "CLAUDE.md migré (backup : $BACKUP)"
-    else
-        echo ""
-        echo "  Un fichier ~/CLAUDE.md existe déjà avec un contenu différent :"
-        echo "  ---"
-        cat "$CLAUDE_MD"
-        echo "  ---"
-        echo ""
-        read -p "  Remplacer par @dev/my-context/core.md ? (o/N) : " confirm
-        if [[ "$confirm" == "o" || "$confirm" == "O" ]]; then
-            cp "$CLAUDE_MD" "$BACKUP"
-            echo "$CORE_LINE" > "$CLAUDE_MD"
-            green "CLAUDE.md migré (backup : $BACKUP)"
-        else
-            warn "CLAUDE.md non modifié — à corriger manuellement si besoin"
-        fi
-    fi
-fi
-
-# ── 6. settings.json ───────────────────────────────────────────────────────
-echo "[6/6] settings.json..."
-SETTINGS_TEMPLATE="$CONTEXT_DIR/settings-template.json"
+# ────────────────────────────────────────────────────────────────
+# 4. settings.json
+# ────────────────────────────────────────────────────────────────
+SETTINGS_TEMPLATE="$CLAUDIA_HOME/settings-template.json"
 SETTINGS_TARGET="$CLAUDE_DIR/settings.json"
-
-if [ ! -f "$SETTINGS_TEMPLATE" ]; then
-    warn "settings-template.json absent — settings.json non modifié"
-else
-    if [ -f "$SETTINGS_TARGET" ]; then
+if [ -f "$SETTINGS_TEMPLATE" ]; then
+    if [ -f "$SETTINGS_TARGET" ] && ! cmp -s "$SETTINGS_TEMPLATE" "$SETTINGS_TARGET"; then
         cp "$SETTINGS_TARGET" "${SETTINGS_TARGET}.bak-$(date +%Y%m%d-%H%M%S)"
-        green "backup settings.json créé"
     fi
     cp "$SETTINGS_TEMPLATE" "$SETTINGS_TARGET"
-    green "settings.json mis à jour"
+    green "Réglages Claude Code à jour"
+else
+    warn "settings-template.json absent — réglages non modifiés"
 fi
 
-# ── Résumé ─────────────────────────────────────────────────────────────────
-echo ""
-echo "==================================================="
+# ────────────────────────────────────────────────────────────────
+# 5. Résumé
+# ────────────────────────────────────────────────────────────────
 if [ $ERRORS -eq 0 ]; then
-    echo "  Installation terminée !"
+    echo ""
+    green "Installation terminée sans erreur"
 else
-    echo "  Installation terminée avec $ERRORS erreur(s)"
+    echo ""
+    warn "Terminé avec $ERRORS avertissement(s)"
 fi
-echo "==================================================="
-echo ""
-echo "  Composants installés :"
-[ -f "$CONTEXT_DIR/core.md" ]                && echo "    ✓ core.md — context modulaire" || echo "    · core.md — absent"
-[ $HOOK_COUNT -gt 0 ]                        && echo "    ✓ $HOOK_COUNT hook(s) — ~/.claude/hooks/" || echo "    · hooks — aucun"
-[ $SKILL_COUNT -gt 0 ]                       && echo "    ✓ $SKILL_COUNT skill(s) — ~/.claude/commands/" || echo "    · skills — aucun"
-[ -f "$SETTINGS_TARGET" ]                    && echo "    ✓ settings.json — hooks activés" || echo "    · settings.json — absent"
-echo ""
-echo "  Prochaine étape :"
-echo ""
-echo "  1. Lance Claude depuis ton dossier home :"
-echo "     cd ~ && claude"
-echo ""
-echo "  2. Si c'est la première installation :"
-echo "     Claude va démarrer l'interview de configuration automatiquement."
-echo ""
-echo "  3. Si tu migres depuis l'ancienne architecture :"
-echo "     Claude détectera le SETUP_REQUIRED dans core.md et proposera"
-echo "     de mettre à jour les fichiers."
-echo ""

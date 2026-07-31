@@ -1,1 +1,1 @@
-@dev/my-context/core.md
+@Documents/Claudia/core.md
