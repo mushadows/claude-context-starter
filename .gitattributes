@@ -1,0 +1,4 @@
+# Force LF sur tout ce qui est exécutable / sensible aux EOL
+# → évite le bug CRLF Windows qui casse les hooks et les scripts Docker
+*.sh    text eol=lf
+*.bash  text eol=lf
