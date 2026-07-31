@@ -21,4 +21,4 @@ else
     MSG="Contexte compacté. Avant de continuer : mettre à jour ETAT.md dans le cwd si présent, puis pusher my-context. Puis reprendre le travail normalement."
 fi
 
-printf '{"hookSpecificOutput":{"hookEventName":"PostCompact","additionalContext":"%s"}}' "$MSG"
+printf '{"systemMessage":"%s"}' "$MSG"
