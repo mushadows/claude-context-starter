@@ -150,6 +150,37 @@ Format de la synthèse :
 
 ---
 
+## Mode 3 niveaux (optionnel, gros chantiers uniquement)
+
+Un subagent peut lancer un sous-agent (profondeur 2). Hiérarchie : **boss → leads → workers**. Profondeur max = 2 sous le boss, jamais un worker qui délègue encore.
+
+| Niveau | Modèle | Rôle |
+|---|---|---|
+| Boss (session principale) | opus | Garde-fou, plan global, synthèse finale. Jamais délégué |
+| Leads | sonnet | 1 lead par domaine (infra, sécu, design, code, audit…). Découpe son domaine en micro-tâches, lance ses workers, vérifie leur sortie, rend un rapport condensé |
+| Workers | haiku | Micro-tâche unique : 1 fichier ou 1 commande, critère de succès binaire, aucune décision |
+
+**Activation — les 4 conditions doivent être vraies, sinon rester en 2 niveaux (ou refuser) :**
+1. Les 3 questions de la phase 1 sont OK.
+2. ≥ 3 domaines indépendants.
+3. ≥ 8 micro-tâches simples et répétables, adaptées à haiku.
+4. Validation explicite de l'utilisateur au checkpoint, avec le coût estimé : « Mode 3 niveaux : N leads sonnet + M workers haiku, usage lourd. Go ? »
+
+Exemple qui qualifie : créer + déployer + sécuriser + auditer + designer un site de A à Z. Ne qualifie pas : bug, refactoring couplé, rédaction.
+
+**Modèle du boss :** un skill ne peut pas changer le modèle de la session. À l'entrée du mode 3 niveaux, vérifier le modèle courant ; si ce n'est pas Opus, dire en une ligne « Boss recommandé : `/model opus` » puis continuer sans bloquer.
+
+**Briefing d'un lead (en plus de la phase 4) :**
+- Il reçoit son domaine, ses exclusions et le budget : nombre max de workers.
+- Il lance ses workers `haiku` en parallèle dans un seul message, chacun avec le briefing complet de la phase 4 (périmètre +/−, pas de commit/push/deploy, pas d'`AskUserQuestion`, sortie < 100 mots, critère binaire).
+- Il vérifie chaque sortie de worker (un `Read`/`grep`/test suffit) avant de la remonter : jamais de transcript brut vers le boss.
+- Rapport au boss : bullets < 200 mots, fait / partiel / bloqué + fichiers touchés. Décisions humaines = TODO, jamais tranchées.
+- Un lead qui n'a que 1-2 micro-tâches les fait lui-même sans worker.
+
+**Isolation :** deux leads qui écrivent dans les mêmes fichiers → fusionner en un seul lead ou `isolation: "worktree"`. Workers d'un même lead : périmètres disjoints obligatoires.
+
+---
+
 ## Règles opérationnelles (non négociables)
 
 - **Phase 1 obligatoire** — jamais de dispatch sans avoir répondu aux 3 questions.
@@ -158,3 +189,4 @@ Format de la synthèse :
 - **Ne jamais confier la synthèse à un subagent** — c'est le job de l'orchestrateur qui a la vision d'ensemble.
 - **Ne jamais commit/push/deploy après une session multi-agents sans passer par l'utilisateur** — présenter d'abord la synthèse.
 - **Refuser fermement** l'orchestration si le garde-fou phase 1 dit non. Ne pas céder à la pression "vas-y quand même".
+- **Mode 3 niveaux : jamais sans les 4 conditions et la validation de coût.** Profondeur max 2 sous le boss. Les leads et workers ne commit/push/deploy jamais.
