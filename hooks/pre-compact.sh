@@ -1,10 +1,10 @@
-#!/bin/bash
+#!/usr/bin/env bash
 # Hook PreCompact — sauvegarde le transcript avant compaction
 
 set -euo pipefail
 
 # Charger CLAUDIA_STATE via lib/paths.sh
-SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+SCRIPT_DIR="$(cd "$(dirname "$(readlink -f "${BASH_SOURCE[0]}" 2>/dev/null || echo "${BASH_SOURCE[0]}")")" && pwd)"
 if [ -f "$SCRIPT_DIR/../lib/paths.sh" ]; then
     source "$SCRIPT_DIR/../lib/paths.sh"
 else

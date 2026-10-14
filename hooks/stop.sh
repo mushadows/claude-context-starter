@@ -8,7 +8,7 @@ set -euo pipefail
 read -r -d '' _stdin 2>/dev/null || true
 
 # Charger CLAUDIA_HOME
-SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+SCRIPT_DIR="$(cd "$(dirname "$(readlink -f "${BASH_SOURCE[0]}" 2>/dev/null || echo "${BASH_SOURCE[0]}")")" && pwd)"
 if [ -f "$SCRIPT_DIR/../lib/paths.sh" ]; then
     source "$SCRIPT_DIR/../lib/paths.sh"
 else

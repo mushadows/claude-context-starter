@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # Claudia — bootstrap Linux/Mac
 # Usage :
-#   curl -fsSL https://raw.githubusercontent.com/mushadows/claudia/main/bootstrap.sh | bash
+#   curl -fsSL https://raw.githubusercontent.com/mushadows/claude-context-starter/main/bootstrap.sh | bash
 # Idempotent : peut être relancé pour mettre à jour.
 
 set -euo pipefail
@@ -9,7 +9,7 @@ set -euo pipefail
 # ────────────────────────────────────────────────────────────────
 # Config
 # ────────────────────────────────────────────────────────────────
-REPO="mushadows/claudia"
+REPO="mushadows/claude-context-starter"
 BRANCH="main"
 CLAUDIA_HOME="${CLAUDIA_HOME:-$HOME/Documents/Claudia}"
 CLAUDIA_STATE="${CLAUDIA_STATE:-$HOME/.claudia}"
@@ -167,7 +167,7 @@ if [ -f "$CLAUDIA_HOME/.claudia-version" ]; then
     # Backup des fichiers user avant écrasement
     BACKUP="$CLAUDIA_STATE/backups/$(date +%Y%m%d-%H%M%S)"
     mkdir -p "$BACKUP"
-    for f in profil.md memoire.md; do
+    for f in core.md profil.md memoire.md; do
         [ -f "$CLAUDIA_HOME/$f" ] && cp "$CLAUDIA_HOME/$f" "$BACKUP/" || true
     done
     [ -d "$CLAUDIA_HOME/contexts" ] && cp -R "$CLAUDIA_HOME/contexts" "$BACKUP/" 2>/dev/null || true
@@ -175,18 +175,20 @@ if [ -f "$CLAUDIA_HOME/.claudia-version" ]; then
 fi
 
 curl -fsSL "$TARBALL_URL" | tar -xz -C "$TMPDIR"
-SRC="$(find "$TMPDIR" -maxdepth 1 -type d -name 'claudia-*' | head -1)"
+SRC="$(find "$TMPDIR" -mindepth 1 -maxdepth 1 -type d | head -1)"
 if [ -z "$SRC" ]; then
     fail "Impossible d'extraire les fichiers Claudia."
     exit 12
 fi
 
 # On copie les fichiers "système" (jamais les fichiers utilisateur existants)
-for item in core.md INTERVIEW.md README.md hooks skills lib templates contexts settings-template.json internals; do
+for item in INTERVIEW.md README.md install.sh hooks skills lib templates contexts settings-template.json internals; do
     [ -e "$SRC/$item" ] && cp -R "$SRC/$item" "$CLAUDIA_HOME/" || true
 done
 
 # Templates user (profil.md, memoire.md) : copier UNIQUEMENT s'ils n'existent pas déjà
+# core.md est rempli par l'interview : jamais écrasé s'il existe
+[ -f "$CLAUDIA_HOME/core.md" ] || cp "$SRC/core.md" "$CLAUDIA_HOME/core.md"
 for f in profil.md memoire.md; do
     if [ ! -f "$CLAUDIA_HOME/$f" ] && [ -f "$SRC/templates/$f" ]; then
         cp "$SRC/templates/$f" "$CLAUDIA_HOME/$f"

@@ -140,13 +140,12 @@ Voici les phrases exactes à réutiliser (adapter à la situation) :
 
 ## Modules à charger selon le contexte
 
-<!-- SETUP_REQUIRED : à compléter au fil de l'usage. Chaque projet actif a un module ctx-* dédié -->
+<!-- À compléter au fil de l'usage. Chaque projet actif a un module ctx-* dédié -->
 
 Claudia charge automatiquement le bon module selon ce que la personne évoque :
 
 | Situation | Module à lire |
 |---|---|
-| SETUP_REQUIRED — aucun module configuré à l'installation | — |
 | La personne mentionne un projet précis | `contexts/ctx-[projet].md` si présent |
 | Session code / dev | `contexts/ctx-dev.md` si présent |
 | Prise de notes / apprentissage / mode prof | `contexts/ctx-professor.md` si présent |
@@ -163,17 +162,14 @@ Ne jamais lister le catalogue en bloc. Mentionner un skill **uniquement quand la
 | Moment de révélation | Skill | Wording |
 |---|---|---|
 | Toujours accessible | `/claudia` | « tape `/claudia` pour ajuster comment on travaille ensemble » |
-| Fin d'interview | `/mon-jour` (alias `/today`) | « `/mon-jour` te fait un récap de ce qui t'attend aujourd'hui » |
-| Après 3-4 sessions sur un projet | `/on-en-est-où` (alias `/etat`) | « `/on-en-est-où` te rappelle où on en est » |
-| Personne mentionne un projet précis | `/parle-de` (alias `/ctx`) | « pour bosser sur ça, `/parle-de [projet]` charge le contexte » |
-| Session dense (≥ 30 min) | `/on-arrête-là` (alias `/bilan`) | « `/on-arrête-là` pour clôturer proprement » |
-| Grosse tâche floue en approche | `/es-tu-au-clair` (alias `/check`) | « `/es-tu-au-clair` — je vérifie que j'ai tout ce qu'il me faut » |
-| Personne code (détecté) | `/à-plusieurs` (alias `/orchestre`) | « pour ça je peux dispatcher plusieurs assistants en parallèle avec `/à-plusieurs` » |
-| Personne enseigne / étudie | `/mode-cours` (alias `/prof`) | — |
-| Personne gère un serveur/site | `/mettre-en-ligne` (alias `/deploy`) | — |
-| Sujet finances évoqué + jour ≥ 5 ou ≥ 25 | `/mes-comptes` (alias `/finance`) | — |
-
-Les noms d'origine restent en alias pour compatibilité.
+| Fin d'interview | `/today` | « `/today` te fait un récap de ce qui t'attend aujourd'hui » |
+| Après 3-4 sessions sur un projet | `/etat` | « `/etat` te rappelle où on en est » |
+| Personne mentionne un projet précis | `/ctx` | « pour bosser sur ça, `/ctx [projet]` charge le contexte » |
+| Session dense (≥ 30 min) | `/bilan` | « `/bilan` pour clôturer proprement » |
+| Grosse tâche floue en approche | `/check` | « `/check` — je vérifie que j'ai tout ce qu'il me faut » |
+| Personne code (détecté) | `/orchestre` | « pour ça je peux dispatcher plusieurs assistants en parallèle avec `/orchestre` » |
+| Personne enseigne / étudie | `/prof` | — |
+| Personne gère un serveur/site | `/deploy` | — |
 
 ---
 

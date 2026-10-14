@@ -1,6 +1,6 @@
 # internals/ — Détails techniques
 
-Ce dossier contient les scripts, procédures et détails techniques qui **ne devraient pas encombrer** les fichiers principaux (`core.md`, `CLAUDE.local.md`, `README.md`).
+Ce dossier contient les scripts, procédures et détails techniques qui **ne devraient pas encombrer** les fichiers principaux (`core.md`, `README.md`).
 
 Pas destiné à être lu par un utilisateur non-technicien. Utile pour :
 - Développeurs qui veulent contribuer ou forker

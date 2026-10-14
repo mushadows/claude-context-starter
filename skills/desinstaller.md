@@ -67,11 +67,12 @@ source "$HOME/Documents/Claudia/lib/paths.sh" 2>/dev/null || {
 [ -f "$HOME/.claudia/root" ] && CLAUDIA_HOME="$(cat "$HOME/.claudia/root")"
 
 # 1. Retirer les hooks et skills déployés
-for f in ~/.claude/hooks/*.sh; do
-  [ -f "$f" ] && rm -f "$f"
+# Uniquement les fichiers installés par Claudia (mêmes noms que dans $CLAUDIA_HOME) — jamais ceux de la personne
+for f in "$CLAUDIA_HOME"/hooks/*.sh; do
+  [ -f "$f" ] && rm -f ~/.claude/hooks/"$(basename "$f")"
 done
-for f in ~/.claude/commands/*.md; do
-  [ -f "$f" ] && rm -f "$f"
+for f in "$CLAUDIA_HOME"/skills/*.md; do
+  [ -f "$f" ] && rm -f ~/.claude/commands/"$(basename "$f")"
 done
 
 # 2. Retirer la ligne Claudia dans ~/CLAUDE.md
@@ -108,8 +109,8 @@ Sauvegarde de tes données : [chemin ou "aucune sauvegarde demandée"]
 Fichiers supprimés : [liste des chemins]
 
 Pour réinstaller un jour, tape dans ton terminal :
-  Linux/Mac : curl -fsSL https://raw.githubusercontent.com/mushadows/claudia/main/bootstrap.sh | bash
-  Windows   : iwr -useb https://raw.githubusercontent.com/mushadows/claudia/main/bootstrap.ps1 | iex
+  Linux/Mac : curl -fsSL https://raw.githubusercontent.com/mushadows/claude-context-starter/main/bootstrap.sh | bash
+  Windows   : iwr -useb https://raw.githubusercontent.com/mushadows/claude-context-starter/main/bootstrap.ps1 | iex
 
 À bientôt peut-être. — Claudia
 ```

@@ -98,7 +98,7 @@ Lancer les sous-tâches parallèles dans **un seul message avec plusieurs appels
    - "Ne peux pas demander de validation utilisateur — les subagents n'ont pas accès à `AskUserQuestion`. Toute décision qui nécessiterait un choix humain → laisser en TODO dans le rapport final."
 6. **Format de sortie contraint** : "Bullets, <200 mots, pas de transcript. Pour chaque item : fait/partiel/bloqué, fichier(s) modifié(s), 1 ligne technique."
 7. **Critères de succès mesurables** : "Le build TypeScript doit passer. Aucune erreur nouvelle dans `npm run build`."
-8. **Décisions déjà prises** : tout choix architectural déjà pris qu'il faut respecter (extrait ETAT.md, contraintes du CLAUDE.local.md).
+8. **Décisions déjà prises** : tout choix architectural déjà pris qu'il faut respecter (extrait ETAT.md, contraintes du profil).
 
 **Modèle recommandé selon le worker :**
 - Recherche / exploration read-only → `haiku` (agent Explore natif)

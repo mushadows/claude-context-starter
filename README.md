@@ -30,7 +30,7 @@ Rien d'autre. Pas besoin de savoir taper des commandes techniques — la command
 Ouvre l'application **Terminal** et colle cette ligne, puis appuie sur Entrée :
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/mushadows/claudia/main/bootstrap.sh | bash
+curl -fsSL https://raw.githubusercontent.com/mushadows/claude-context-starter/main/bootstrap.sh | bash
 ```
 
 ### Sur Windows
@@ -38,7 +38,7 @@ curl -fsSL https://raw.githubusercontent.com/mushadows/claudia/main/bootstrap.sh
 Ouvre **PowerShell** (tape `PowerShell` dans le menu Démarrer) et colle cette ligne, puis appuie sur Entrée :
 
 ```powershell
-iwr -useb https://raw.githubusercontent.com/mushadows/claudia/main/bootstrap.ps1 | iex
+iwr -useb https://raw.githubusercontent.com/mushadows/claude-context-starter/main/bootstrap.ps1 | iex
 ```
 
 L'installation prend 3 à 5 minutes selon ta connexion. Aucun mot de passe administrateur ne sera demandé. Tout est visible à l'écran, tu peux relancer la commande à tout moment si ça coince.
@@ -104,7 +104,7 @@ Tu peux les ouvrir avec le bloc-notes ou n'importe quel éditeur — c'est du te
 
 - **L'installation a échoué** : relance la même commande — c'est fait pour être ré-exécuté sans casse. Un log complet est écrit dans `~/.claudia/logs/`.
 - **Une question à Claudia** : tape simplement ta question, elle te répondra en langage normal.
-- **Un bug** : ouvre une issue sur [github.com/mushadows/claudia/issues](https://github.com/mushadows/claudia/issues).
+- **Un bug** : ouvre une issue sur [github.com/mushadows/claude-context-starter/issues](https://github.com/mushadows/claude-context-starter/issues).
 
 ---
 

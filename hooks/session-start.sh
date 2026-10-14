@@ -6,7 +6,7 @@ set -euo pipefail
 read -r -d '' _input 2>/dev/null || true
 
 # Charger les chemins Claudia (CLAUDIA_HOME, CLAUDIA_STATE, OS_KIND…)
-SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+SCRIPT_DIR="$(cd "$(dirname "$(readlink -f "${BASH_SOURCE[0]}" 2>/dev/null || echo "${BASH_SOURCE[0]}")")" && pwd)"
 if [ -f "$SCRIPT_DIR/../lib/paths.sh" ]; then
     source "$SCRIPT_DIR/../lib/paths.sh"
 elif [ -f "$HOME/Documents/Claudia/lib/paths.sh" ]; then
@@ -41,7 +41,12 @@ fi
 if [ -f "$HOME/CLAUDE.md" ] && grep -q "Documents/Claudia/core.md" "$HOME/CLAUDE.md"; then
     log_ "· ~/CLAUDE.md connecté"
 else
-    echo "@Documents/Claudia/core.md" > "$HOME/CLAUDE.md"
+    if [ -f "$HOME/CLAUDE.md" ]; then
+        cp "$HOME/CLAUDE.md" "$HOME/CLAUDE.md.bak-$(date +%Y%m%d-%H%M%S)"
+        { echo "@Documents/Claudia/core.md"; cat "$HOME/CLAUDE.md"; } > "$HOME/CLAUDE.md.tmp" && mv "$HOME/CLAUDE.md.tmp" "$HOME/CLAUDE.md"
+    else
+        echo "@Documents/Claudia/core.md" > "$HOME/CLAUDE.md"
+    fi
     log_ "✓ ~/CLAUDE.md créé/corrigé"
 fi
 

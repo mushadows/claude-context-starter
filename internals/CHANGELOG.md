@@ -2,6 +2,15 @@
 
 Historique des changements majeurs du projet.
 
+## 2026-10-14 — Fiabilisation avant partage
+
+- Bootstrap : `install.sh` copié (l'étape 7 plantait), `core.md` jamais écrasé, dossier extrait détecté quel que soit le nom du repo
+- `core.md` : noms de skills réels uniquement (plus d'alias inexistants)
+- Ajout de `templates/profil.md` et `templates/memoire.md`
+- `/desinstaller` ne retire que les fichiers installés par Claudia
+- Hooks : résolution des symlinks pour retrouver `lib/paths.sh`, `~/CLAUDE.md` sauvegardé avant modification
+- `orchestre` : contrôle de périmètre et mode 3 niveaux
+
 ## 2026-07-31 — Pivot Claudia (v0.1)
 
 Refonte complète depuis `claude-context-starter` pour rendre l'outil utilisable par n'importe qui (boulanger, coach, secrétaire, freelance) sans prérequis technique.
@@ -29,4 +38,4 @@ Refonte complète depuis `claude-context-starter` pour rendre l'outil utilisable
 - Fichiers de travail personnels du repo public : `CLAUDE.md`, `CLAUDE.local.md`, `ETAT.md`, `CONF.md`, `PROJECTS.md`, `ROUTINES.md`, `RULES_LANGAGES.md`
 - Bloc PreToolUse hardcodé `SETUP_REQUIRED-projet-*` dans `settings-template.json`
 
-**Repo GitHub** : renommé `mushadows/claude-context-starter` → `mushadows/claudia` (redirect auto).
+**Repo GitHub** : `mushadows/claude-context-starter` (URLs du bootstrap alignées).

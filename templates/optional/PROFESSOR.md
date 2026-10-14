@@ -30,7 +30,7 @@ ciblées sur le sujet avant de commencer. Ne pas annoncer l'évaluation — l'in
 
 **Début de session — checklist silencieuse (NON NÉGOCIABLE) :**
 
-1. Lire `PROFESSOR-TRACKER.md` dans le vault de notes de l'utilisateur (chemin défini dans `CONF.md`) — rappeler les lacunes actives de la matière.
+1. Lire `PROFESSOR-TRACKER.md` dans le vault de notes de l'utilisateur (chemin noté dans la section « Outils » de `profil.md`) — rappeler les lacunes actives de la matière.
 2. Si le sujet est un **projet** → lire les notes du projet dans le vault si elles existent.
 3. Si le sujet est un **cours** → lire les notes brutes dans le dossier de la matière si elles existent.
 
@@ -100,8 +100,8 @@ Surveiller ces signaux de surcharge ou de fatigue :
 À la **fin de chaque session**, créer ou mettre à jour `PROFESSOR-TRACKER.md` dans le vault de notes de l'utilisateur.
 Ce fichier est la mémoire pédagogique persistante — il survit à la fermeture de la conversation.
 
-Le chemin du vault est défini dans `CONF.md` (section "Outils" → "Notes").
-Si l'utilisateur n'utilise pas Obsidian, sauvegarder le tracker dans `~/dev/my-context/PROFESSOR-TRACKER.md`.
+Le chemin du vault est noté dans `profil.md` (section « Outils »).
+Si l'utilisateur n'utilise pas Obsidian, sauvegarder le tracker dans `$CLAUDIA_HOME/PROFESSOR-TRACKER.md`.
 
 ### Clôture de session
 Quand l'utilisateur dit "on s'arrête", "c'est bon pour aujourd'hui", ou après 45 min :
@@ -138,7 +138,7 @@ Quand l'utilisateur dit "on s'arrête", "c'est bon pour aujourd'hui", ou après 
 ## Intégration vault de notes (Obsidian ou équivalent)
 
 Si l'utilisateur utilise Obsidian, les cours générés sont sauvegardés dans le vault.
-Le chemin du vault est dans `CONF.md`.
+Le chemin du vault est dans `profil.md` (section « Outils »).
 
 ### Structure des fichiers générés
 

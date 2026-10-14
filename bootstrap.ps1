@@ -1,6 +1,6 @@
 # Claudia — bootstrap Windows
 # Usage :
-#   iwr -useb https://raw.githubusercontent.com/mushadows/claudia/main/bootstrap.ps1 | iex
+#   iwr -useb https://raw.githubusercontent.com/mushadows/claude-context-starter/main/bootstrap.ps1 | iex
 # Idempotent : peut être relancé pour mettre à jour.
 
 $ErrorActionPreference = 'Stop'
@@ -8,7 +8,7 @@ $ErrorActionPreference = 'Stop'
 # ────────────────────────────────────────────────────────────────
 # Config
 # ────────────────────────────────────────────────────────────────
-$Repo         = 'mushadows/claudia'
+$Repo         = 'mushadows/claude-context-starter'
 $Branch       = 'main'
 $DocsPath     = [Environment]::GetFolderPath('MyDocuments')
 $ClaudiaHome  = if ($env:CLAUDIA_HOME) { $env:CLAUDIA_HOME } else { Join-Path $DocsPath 'Claudia' }
@@ -153,7 +153,7 @@ try {
     $zip = Join-Path $tmp 'src.zip'
     Invoke-WebRequest -Uri "https://github.com/$Repo/archive/refs/heads/$Branch.zip" -OutFile $zip -UseBasicParsing
     Expand-Archive -Path $zip -DestinationPath $tmp -Force
-    $srcRoot = (Get-ChildItem $tmp -Directory | Where-Object { $_.Name -like 'claudia-*' } | Select-Object -First 1).FullName
+    $srcRoot = (Get-ChildItem $tmp -Directory | Select-Object -First 1).FullName
     if (-not $srcRoot) { Fail "Extraction impossible."; exit 12 }
 
     # Backup fichiers user si upgrade
@@ -161,7 +161,7 @@ try {
         Info "Claudia est déjà installée — je mets à jour (tes fichiers persos sont préservés)."
         $backup = Join-Path (Join-Path $ClaudiaState 'backups') (Get-Date -Format 'yyyyMMdd-HHmmss')
         New-Item -ItemType Directory -Force -Path $backup | Out-Null
-        foreach ($f in @('profil.md','memoire.md')) {
+        foreach ($f in @('core.md','profil.md','memoire.md')) {
             $src = Join-Path $ClaudiaHome $f
             if (Test-Path $src) { Copy-Item $src -Destination $backup }
         }
@@ -171,15 +171,15 @@ try {
     }
 
     # Copier les fichiers système (jamais user)
-    foreach ($item in @('core.md','INTERVIEW.md','README.md','hooks','skills','lib','templates','contexts','settings-template.json','internals')) {
+    foreach ($item in @('INTERVIEW.md','README.md','install.sh','hooks','skills','lib','templates','contexts','settings-template.json','internals')) {
         $s = Join-Path $srcRoot $item
         if (Test-Path $s) { Copy-Item -Path $s -Destination $ClaudiaHome -Recurse -Force }
     }
 
-    # Templates user (profil.md, memoire.md) : UNIQUEMENT si absents
-    foreach ($f in @('profil.md','memoire.md')) {
+    # Fichiers user (core.md rempli par l'interview, profil.md, memoire.md) : UNIQUEMENT si absents
+    foreach ($f in @('core.md','profil.md','memoire.md')) {
         $dst = Join-Path $ClaudiaHome $f
-        $src = Join-Path $srcRoot "templates/$f"
+        $src = if ($f -eq 'core.md') { Join-Path $srcRoot 'core.md' } else { Join-Path $srcRoot "templates/$f" }
         if (-not (Test-Path $dst) -and (Test-Path $src)) {
             Copy-Item -Path $src -Destination $dst
         }

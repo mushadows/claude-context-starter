@@ -1,6 +1,6 @@
 # ctx-dev.md — Règles de code
 > SETUP_REQUIRED — adapter aux langages de tes projets.
-> Actif pour tout projet de code. Sources : RULES_GENERIC.md + RULES_LANGAGES.md
+> Actif pour tout projet de code. Source : RULES_GENERIC.md
 
 ## Règles universelles
 - **Langue** : UI/messages/commentaires en [SETUP_REQUIRED : ta langue] — identifiants en anglais

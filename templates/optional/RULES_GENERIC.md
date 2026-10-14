@@ -2,10 +2,10 @@ SETUP_REQUIRED
 
 ---
 
-> Ce fichier sera généré automatiquement lors de l'interview de configuration si tu codes.
-> Si tu ne codes pas, ce fichier reste vide et est ignoré.
+> Si tu codes, copie ce fichier dans `contexts/` et adapte-le à tes préférences.
+> Si tu ne codes pas, ignore-le.
 >
-> Voici le template de base qui sera personnalisé selon tes préférences :
+> Template de base :
 
 # RULES_GENERIC.md
 
@@ -13,8 +13,7 @@ Source unique des règles communes à tout le code.
 
 ## Exceptions
 
-Toute règle de ce fichier peut être surchargée par langage dans `RULES_LANGAGES.md`.
-En cas de conflit, `RULES_LANGAGES.md` a priorité pour le langage concerné.
+Une règle propre à un langage peut être ajoutée dans `ctx-dev.md` et a alors priorité.
 
 ---
 
