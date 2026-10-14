@@ -1,5 +1,5 @@
 {
-  "model": "claude-sonnet-4-6",
+  "model": "sonnet",
   "permissions": {
     "defaultMode": "acceptEdits",
     "allow": ["Bash(*)", "Read(*)", "Edit(*)", "Write(*)", "Glob(*)", "Grep(*)", "WebSearch", "WebFetch(*)"]

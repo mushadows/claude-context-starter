@@ -112,6 +112,7 @@ Lancer les sous-tâches parallèles dans **un seul message avec plusieurs appels
 **Verifier subagent** (auto-activé quand les workers de phase 4 ont produit du code destiné à être commité) :
 - Lancer un agent séparé qui reçoit : les artefacts produits + les critères de succès + les tools de test (build, lint, tests).
 - Il **ne reçoit pas** l'historique de la construction — juste l'artefact et les critères.
+- **Contrôle de périmètre (toujours, avant la synthèse) :** `git status --short` + `git diff --stat`, puis comparer aux périmètres annoncés. Tout fichier modifié hors périmètre d'un worker = problème bloquant : le signaler et l'annuler avant de continuer. Ne jamais se fier au résumé texte d'un agent. Projet sans git : lister les fichiers modifiés (`find -newer`) à la place.
 - Prompt type : "Voici les fichiers modifiés : [liste]. Voici les critères de succès : [liste]. Exécute la vérification complète et rends un verdict binaire par critère. Ne présume pas — teste."
 - Anti-pattern à éviter : "Make sure it works" (trop vague). Utiliser : "Run the full test suite and report all failures", "Verify build passes", "Grep for TODO added by workers", etc.
 
