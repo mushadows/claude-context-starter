@@ -45,6 +45,7 @@ Générés par l'interview, **ignorés par git** : `CLAUDE.local.md` (ton profil
 |---|---|
 | `install.sh --plugins` | installe/active les plugins recommandés (ex. `ponytail`) |
 | `install.sh --quiet` | sortie d'une ligne (utilisé par le hook `session-start`) |
+| `CLAUDE_TRUST_LOCAL_BINS=1` | le hook `post-edit` utilise le `tsc` du projet (`node_modules/.bin`) au lieu du `tsc` global : à réserver à tes propres projets, ce binaire est du code arbitraire |
 | `.autosync` | fichier vide à la racine du repo : `stop` commit en local, `session-start` fait un `git pull --ff-only` des repos de `~/dev`. Contenu `push` : `stop` pousse aussi (uniquement vers TON repo privé, jamais vers le template public) |
 
 ## Personnalisation

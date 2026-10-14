@@ -108,9 +108,9 @@ else
     # le reste de la config existante (permissions, modèle, plugins...) n'est pas touché.
     MERGED=$(mktemp 2>/dev/null || echo "$CLAUDE_DIR/.settings-merge.$$")
     merged=false
-    if command -v python3 >/dev/null 2>&1 && python3 -c 'import json' >/dev/null 2>&1; then
+    if command -v python3 >/dev/null 2>&1 && python3 -I -c 'import json' >/dev/null 2>&1; then
         rc=0
-        python3 - "$TARGET" "$TEMPLATE" "$MERGED" <<'PY' || rc=$?
+        python3 -I - "$TARGET" "$TEMPLATE" "$MERGED" <<'PY' || rc=$?
 import json, sys
 cur = json.load(open(sys.argv[1], encoding="utf-8"))
 tpl = json.load(open(sys.argv[2], encoding="utf-8"))

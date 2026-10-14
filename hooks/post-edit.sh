@@ -27,8 +27,13 @@ case "${file_path##*.}" in
             [ "$parent" = "$dir" ] && exit 0
             dir="$parent"
         done
-        tsc_bin="$dir/node_modules/.bin/tsc"
-        [ -x "$tsc_bin" ] || exit 0
+        # Un binaire du projet est du code arbitraire (repo tiers, sensible) : tsc global par défaut,
+        # tsc local seulement si CLAUDE_TRUST_LOCAL_BINS=1 (à réserver à tes propres projets).
+        if [ "${CLAUDE_TRUST_LOCAL_BINS:-0}" = "1" ] && [ -x "$dir/node_modules/.bin/tsc" ]; then
+            tsc_bin="$dir/node_modules/.bin/tsc"
+        else
+            tsc_bin=$(command -v tsc 2>/dev/null) || exit 0
+        fi
         result=$(cd "$dir" && ${TO:+$TO }"$tsc_bin" --noEmit 2>&1) || fail "erreurs TypeScript ($file_path)" "$result"
         ;;
     go)
