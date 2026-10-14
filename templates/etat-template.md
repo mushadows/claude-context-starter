@@ -1,5 +1,5 @@
-# ETAT.md — [Nom du projet]
-> Mis à jour automatiquement — ne pas éditer manuellement
+# etat/[projet].md — [Nom du projet]
+> Mis à jour par `/bilan` et `/etat`
 
 ## État actuel
 [une ligne : ce qui fonctionne en production/dev, où c'est déployé, accès si applicable]

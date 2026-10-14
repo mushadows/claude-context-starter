@@ -1,22 +1,27 @@
 #!/usr/bin/env bash
-# Hook PreCompact — sauvegarde le transcript avant compaction
+# Hook PreCompact — sauvegarde locale de la fin du transcript avant compaction,
+# pour ne pas perdre les décisions prises en cours de session.
+# Fichiers dans ~/.claude/session-state/ (purgés après 30 jours, jamais versionnés).
 
 set -euo pipefail
 
-# Charger CLAUDIA_STATE via lib/paths.sh
-SCRIPT_DIR="$(cd "$(dirname "$(readlink -f "${BASH_SOURCE[0]}" 2>/dev/null || echo "${BASH_SOURCE[0]}")")" && pwd)"
-if [ -f "$SCRIPT_DIR/../lib/paths.sh" ]; then
-    source "$SCRIPT_DIR/../lib/paths.sh"
-else
-    CLAUDIA_STATE="${CLAUDIA_STATE:-$HOME/.claudia}"
-fi
-
-STATE_DIR="$CLAUDIA_STATE/session-state"
+umask 077  # le transcript peut contenir des secrets
+STATE_DIR="$HOME/.claude/session-state"
 mkdir -p "$STATE_DIR"
 
+# JSON stdin : {"session_id":"...","transcript_path":"...","cwd":"..."}
 stdin_data=$(cat)
-session_id=$(echo "$stdin_data" | grep -o '"session_id":"[^"]*"' | cut -d'"' -f4 2>/dev/null || echo "unknown")
-transcript_path=$(echo "$stdin_data" | grep -o '"transcript_path":"[^"]*"' | cut -d'"' -f4 2>/dev/null || echo "")
+
+if command -v jq >/dev/null 2>&1; then
+    session_id=$(printf '%s' "$stdin_data" | jq -r '.session_id // "unknown"')
+    transcript_path=$(printf '%s' "$stdin_data" | jq -r '.transcript_path // ""')
+else
+    session_id=$(printf '%s' "$stdin_data" | sed -n 's/.*"session_id" *: *"\([^"]*\)".*/\1/p' | head -1)
+    transcript_path=$(printf '%s' "$stdin_data" | sed -n 's/.*"transcript_path" *: *"\([^"]*\)".*/\1/p' | head -1)
+fi
+# Nom de fichier sûr (la valeur vient de stdin)
+session_id=$(printf '%s' "${session_id:-unknown}" | tr -cd 'A-Za-z0-9_-')
+session_id="${session_id:-unknown}"
 
 date_str=$(date +%Y-%m-%d-%H%M)
 output_file="$STATE_DIR/${date_str}-${session_id}.md"
@@ -26,12 +31,11 @@ output_file="$STATE_DIR/${date_str}-${session_id}.md"
     echo "session_id: ${session_id}"
     echo ""
     if [ -n "$transcript_path" ] && [ -f "$transcript_path" ]; then
-        echo "## Transcript (extrait — 200 dernières lignes)"
-        tail -200 "$transcript_path"
+        echo "## Transcript (200 dernières lignes)"
+        tail -n 200 "$transcript_path"
     else
         echo "(transcript non disponible)"
     fi
 } > "$output_file"
 
-# Nettoyer les sauvegardes de plus de 30 jours
 find "$STATE_DIR" -name "*.md" -mtime +30 -delete 2>/dev/null || true

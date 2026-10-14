@@ -1,29 +1,26 @@
-# Fichiers système
+# Système / éditeurs
 .DS_Store
 Thumbs.db
 desktop.ini
-
-# Éditeurs
 .vscode/
 .idea/
 *.swp
-*.swo
 *~
 
-# Secrets (ne jamais committer)
+# Secrets
 .env
 *.key
 *.pem
 secrets/
 
-# Fichiers utilisateur Claudia (si le repo est utilisé en local pour développer)
-# Sur la machine d'un end-user, ces fichiers vivent dans ~/Documents/Claudia/
-# et ne sont JAMAIS dans le repo. Si tu forks pour dev, tu peux ignorer localement.
-/profil.md
-/memoire.md
-/CLAUDE.md
+# Fichiers personnels générés par l'interview (ne jamais publier)
+/PROJECTS.md
+/CONF.md
 /CLAUDE.local.md
-.autosync
-.claudia-version
+/CLAUDE.md
+/etat/
 /contexts/ctx-*.md
-!/contexts/README.md
+!/contexts/ctx-dev.md
+!/contexts/ctx-projet.template.md
+/.autosync
+*.bak-*

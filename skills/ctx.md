@@ -1,43 +1,18 @@
----
-description: Charge un contexte particulier (un projet, un domaine) dans la conversation.
----
-
-# /ctx — Charger un contexte
-
-Sert à dire à Claudia « on va parler de X, prépare-toi ». Elle va lire le fichier de contexte correspondant pour être au point.
-
-## Préparation
-
-Toujours en tête de skill :
-
-```bash
-source "$CLAUDIA_HOME/lib/paths.sh"
-```
-
-Les contextes vivent dans `$CLAUDIA_HOME/contexts/` — un fichier `ctx-[nom].md` par projet ou domaine.
-
+Charge manuellement un module de context dans la session courante.
+## Source des modules
+Dossier : `le dossier `contexts/` du repo de contexte`, fichiers `ctx-[nom].md`.
+La liste des modules disponibles et leur routage par cwd sont dans le tableau « Modules context » de `core.md` — c'est la source de vérité. Ne pas dupliquer de liste figée ici.
 ## Comportement
-
+**Arguments :** `$ARGUMENTS`
 **Sans argument :**
-
-Lister les contextes disponibles :
-
+1. Lister les fichiers `contexts/ctx-*.md` (nom + première ligne de description de chacun).
 ```bash
-ls "$CLAUDIA_HOME/contexts/"ctx-*.md 2>/dev/null
+CTX="$(cat "$HOME/.claude/context-dir" 2>/dev/null || echo "$HOME/dev/claude-context")"
+for f in "$CTX"/contexts/ctx-*.md; do [ -e "$f" ] && echo "$(basename "$f" .md | sed 's/^ctx-//') — $(grep -m1 -v '^#\|^$\|^>' "$f")"; done
 ```
-
-Afficher chaque contexte avec une ligne de description (prise du fichier). Si le dossier où on est correspond à un projet connu, le signaler :
-
-> « Tu veux qu'on parle de quoi ? Voilà ce que je connais : *[liste]*. »
-
-**Avec argument (ex: `/ctx cuisine`) :**
-
-1. Trouver le fichier correspondant (tolérer fautes et variantes)
-2. Le lire depuis `$CLAUDIA_HOME/contexts/ctx-[nom].md`
-3. Confirmer en une ligne : *« C'est bon, je suis dans le contexte [nom]. »*
-
-**Si le contexte demandé n'existe pas :**
-
-> « Je n'ai rien sur *[nom]*. J'ai ça : *[liste courte]*. Tu veux que je crée un contexte pour *[nom]* ? »
-
-Si oui → créer un fichier de base `$CLAUDIA_HOME/contexts/ctx-[nom].md` avec une trame courte (nom, description, notes) et le confirmer.
+2. Indiquer le module détecté automatiquement selon le cwd (via le tableau de `core.md`), si applicable.
+**Avec argument :**
+1. Identifier le module demandé (tolérer les fautes de frappe : choisir le nom le plus proche parmi les fichiers existants).
+2. Lire `ctx-[nom].md`, ainsi que les modules associés indiqués pour ce nom dans le tableau de `core.md` (ex. un module projet + `ctx-dev`).
+3. Confirmer en une ligne : « Contexte [module] chargé. »
+**Module inexistant :** lister les modules disponibles et suggérer le plus proche. Si aucun module ne convient, proposer d'en créer un à partir de `templates/`.

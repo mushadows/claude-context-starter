@@ -1,23 +1,37 @@
 {
   "model": "sonnet",
+  "effortLevel": "high",
+  "advisorModel": "opus",
+  "language": "français",
+  "autoCompactEnabled": true,
   "permissions": {
     "defaultMode": "acceptEdits",
-    "allow": ["Bash(*)", "Read(*)", "Edit(*)", "Write(*)", "Glob(*)", "Grep(*)", "WebSearch", "WebFetch(*)"]
+    "allow": [
+      "Bash(*)",
+      "Read(*)",
+      "Edit(*)",
+      "Write(*)",
+      "Glob(*)",
+      "Grep(*)",
+      "WebSearch",
+      "WebFetch(*)"
+    ]
   },
-  "theme": "auto",
-  "autoCompactEnabled": true,
   "hooks": {
     "UserPromptSubmit": [
-      { "matcher": "", "hooks": [{ "type": "command", "command": "~/.claude/hooks/session-start.sh" }] }
+      { "matcher": "", "hooks": [ { "type": "command", "command": "~/.claude/hooks/session-start.sh", "timeout": 10 } ] }
     ],
     "Stop": [
-      { "matcher": "", "hooks": [{ "type": "command", "command": "~/.claude/hooks/stop.sh" }] }
+      { "matcher": "", "hooks": [ { "type": "command", "command": "~/.claude/hooks/stop.sh" } ] }
     ],
     "PreCompact": [
-      { "matcher": "", "hooks": [{ "type": "command", "command": "~/.claude/hooks/pre-compact.sh" }] }
+      { "matcher": "", "hooks": [ { "type": "command", "command": "~/.claude/hooks/pre-compact.sh" } ] }
     ],
     "PostCompact": [
-      { "matcher": "", "hooks": [{ "type": "command", "command": "~/.claude/hooks/post-compact.sh" }] }
+      { "matcher": "", "hooks": [ { "type": "command", "command": "~/.claude/hooks/post-compact.sh" } ] }
+    ],
+    "PostToolUse": [
+      { "matcher": "Edit|Write", "hooks": [ { "type": "command", "command": "~/.claude/hooks/post-edit.sh" } ] }
     ]
   }
 }

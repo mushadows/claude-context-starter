@@ -1,79 +1,34 @@
----
-description: Met en ligne un site ou un service. Pour les personnes qui gèrent un site ou un serveur (opt-in).
-audience: utilisateurs techniques ou personnes qui gèrent activement un site / un serveur
----
-
-# /deploy — Mettre en ligne
-
-Ce skill sert à mettre en ligne un site ou un service qui tourne quelque part (serveur perso, hébergeur, machine à la maison). Si tu ne gères pas ce genre de chose, ce skill n'est pas pour toi — dis simplement à Claudia ce que tu veux faire et elle trouvera mieux.
-
-## Préparation
-
-```bash
-source "$CLAUDIA_HOME/lib/paths.sh"
-```
-
+Workflow de déploiement guidé (version générique, à adapter par projet).
 ## Arguments : `$ARGUMENTS`
-
-- Sans argument → repérer le projet depuis le dossier où on est
-- Avec argument → utiliser le projet nommé (ex: `/deploy mon-site`)
-
+Sans argument → projet du cwd. Avec argument → projet nommé.
 ## Étapes
-
-### 1. Repérer le projet et sa façon de se mettre en ligne
-
+### 1. Identifier la commande de déploiement
 ```bash
 pwd
-cat ETAT.md 2>/dev/null | grep -A2 "Déploiement\|deploy\|Mise en ligne"
-ls deploy.sh Dockerfile docker-compose.yml 2>/dev/null
+grep -iA2 "déploiement\|deploy" ETAT.md 2>/dev/null
+ls deploy.sh Dockerfile docker-compose.yml compose.yml Makefile 2>/dev/null
 ```
-
-Chercher dans l'ordre :
-- `deploy.sh` à la racine → `./deploy.sh`
-- `docker-compose.yml` → `docker compose up -d --build`
-- `Dockerfile` seul → construction + lancement manuel (demander les paramètres)
-- Fichier de contexte du projet dans `$CLAUDIA_HOME/contexts/` → lire la commande documentée
-
-### 2. Vérifier l'état du dossier
-
+Ordre de recherche : section « Déploiement » de l'état projet → module `contexts/ctx-[projet].md` → script `deploy.sh` / cible `make deploy` / `docker compose up -d --build`. Si rien n'est trouvé → demander la commande, puis la noter dans le module ctx du projet. Ne jamais deviner une cible de déploiement.
+### 2. Vérifier l'état du repo
 ```bash
-git status --porcelain 2>/dev/null
-git diff --stat HEAD 2>/dev/null
+git status --porcelain
+git diff --stat HEAD
 ```
-
-Si des fichiers modifiés ne sont pas encore sauvegardés → avertir :
-
-> « Attention, il y a des changements pas encore sauvegardés. Si la mise en ligne tourne mal, ça va être plus dur de comprendre pourquoi. On sauvegarde d'abord, ou on y va quand même ? »
-
+Fichiers non commités → avertir et demander confirmation (un déploiement depuis un état non commité est difficile à tracer).
 ### 3. Lancer les tests si disponibles
-
 ```bash
-ls package.json 2>/dev/null && grep -q '"test"' package.json && npm test -- --passWithNoTests 2>/dev/null
-ls go.mod 2>/dev/null && go test ./... 2>/dev/null
+[ -f package.json ] && grep -q '"test"' package.json && npm test -- --passWithNoTests
+[ -f go.mod ] && go test ./...
+{ [ -f pyproject.toml ] || [ -f pytest.ini ]; } && python3 -m pytest -q
 ```
-
-Si les tests échouent → stopper et afficher l'erreur. Ne pas mettre en ligne.
-Si pas de tests → continuer sans bloquer.
-
-### 4. Mettre en ligne
-
-Lancer la commande repérée à l'étape 1.
-Pour un `deploy.sh` : vérifier qu'il est exécutable (`chmod +x deploy.sh`).
-
+Tests en échec → stopper, afficher l'erreur, ne pas déployer. Pas de tests → continuer.
+### 3bis. Audit sécurité si zones sensibles
+Si le diff touche l'auth, les comptes, les endpoints API ou des variables d'env sensibles → lancer `/security-audit [projet]` avant de continuer. Ne pas bloquer pour le reste.
+### 4. Déployer
+Exécuter la commande identifiée (`chmod +x deploy.sh` si besoin). Signaler les points propres au projet notés dans son module ctx (builds longs, migrations, checkpoint de base de données avant arrêt…).
 ### 5. Vérifier le résultat
-
-Si Docker :
-
-```bash
-docker ps --filter name=[projet] --format "{{.Names}} {{.Status}}"
-```
-
-- Container `Up` → c'est en ligne, informer en une ligne
-- Container absent ou `Exited` → afficher `docker logs [projet] --tail 30` pour comprendre
-
-### 6. Mettre à jour le fichier d'avancement
-
-Si la mise en ligne a réussi → mettre à jour la section **Dernière session** dans `ETAT.md` (si présent).
-
-Informer en une ligne :
-> « C'est en ligne. Si quelque chose cloche, dis-le, je regarde. »
+- Conteneurs : `docker ps --filter name=[projet] --format "{{.Names}} {{.Status}}"` ; si absent ou `Exited` → `docker logs [projet] --tail 30`.
+- Sinon : requête sur l'URL de santé du service (`curl -sI`).
+Succès → informer en une ligne.
+### 6. Mettre à jour l'état
+Succès → mettre à jour **Dernière session** dans l'état projet (`ETAT.md` ou `$CTX/etat/[projet].md`, `CTX="$(cat "$HOME/.claude/context-dir" 2>/dev/null || echo "$HOME/dev/claude-context")"`), sans committer dans un repo en lecture seule.

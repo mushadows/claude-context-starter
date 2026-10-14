@@ -1,17 +1,13 @@
-# paths.sh — Helper multi-OS pour skills et scripts Claudia
-# À sourcer en tête de tout script qui touche à des chemins utilisateur
-# variables selon l'OS.
+# paths.sh — helper multi-OS (Linux / Git Bash Windows), à sourcer (jamais exécuter).
 #
-# Usage :
-#   source "$CLAUDIA_HOME/lib/paths.sh"
-#   ls "$CLAUDIA_HOME/contexts/"
+# Usage : source ~/dev/claude-context/lib/paths.sh
 #
 # Exporte :
-#   OS_KIND        — "linux" ou "windows"
-#   CLAUDIA_HOME   — dossier Claudia (contenu perso + fichiers système)
-#   CLAUDIA_STATE  — dossier interne (fnm, logs, backups)
-#   DOWNLOADS_DIR  — dossier des téléchargements (chemin absolu)
-#   VAULT_DIR      — vault Obsidian si utilisé (optionnel, SETUP_REQUIRED sinon)
+#   OS_KIND       — "linux" ou "windows"
+#   CONTEXT_DIR   — racine du repo de contexte (déduite de l'emplacement de ce fichier)
+#   DOWNLOADS_DIR — dossier de téléchargements (Téléchargements, sinon Downloads)
+#
+# Idempotent : peut être sourcé plusieurs fois.
 
 case "${OSTYPE:-}" in
     msys*|cygwin*|win*) OS_KIND="windows" ;;
@@ -19,41 +15,19 @@ case "${OSTYPE:-}" in
 esac
 [ -n "${WINDIR:-}" ] && OS_KIND="windows"
 
-# ── CLAUDIA_HOME ────────────────────────────────────────────────
-if [ -z "${CLAUDIA_HOME:-}" ]; then
-    # 1) Pointeur écrit par le bootstrap
-    if [ "$OS_KIND" = "windows" ] && [ -f "${LOCALAPPDATA:-}/Claudia/root" ]; then
-        CLAUDIA_HOME="$(cat "$LOCALAPPDATA/Claudia/root")"
-    elif [ -f "$HOME/.claudia/root" ]; then
-        CLAUDIA_HOME="$(cat "$HOME/.claudia/root")"
-    else
-        # 2) Défaut : ~/Documents/Claudia
-        CLAUDIA_HOME="$HOME/Documents/Claudia"
-    fi
+# Emplacement réel de ce fichier (suit les symlinks si possible)
+_paths_src="${BASH_SOURCE[0]:-}"
+if [ -n "$_paths_src" ]; then
+    _paths_real=$(readlink -f "$_paths_src" 2>/dev/null) || _paths_real="$_paths_src"
+    CONTEXT_DIR=$(cd "$(dirname "$_paths_real")/.." 2>/dev/null && pwd) || CONTEXT_DIR=""
+fi
+CONTEXT_DIR="${CONTEXT_DIR:-$HOME/dev/claude-context}"
+unset _paths_src _paths_real
+
+if [ -d "$HOME/Téléchargements" ]; then
+    DOWNLOADS_DIR="$HOME/Téléchargements"
+else
+    DOWNLOADS_DIR="${DOWNLOADS_DIR:-$HOME/Downloads}"
 fi
 
-# ── CLAUDIA_STATE ───────────────────────────────────────────────
-if [ -z "${CLAUDIA_STATE:-}" ]; then
-    if [ "$OS_KIND" = "windows" ] && [ -n "${LOCALAPPDATA:-}" ]; then
-        CLAUDIA_STATE="$LOCALAPPDATA/Claudia"
-    else
-        CLAUDIA_STATE="$HOME/.claudia"
-    fi
-fi
-
-# ── DOWNLOADS_DIR ───────────────────────────────────────────────
-if [ -z "${DOWNLOADS_DIR:-}" ]; then
-    if [ -d "$HOME/Téléchargements" ]; then
-        DOWNLOADS_DIR="$HOME/Téléchargements"
-    else
-        DOWNLOADS_DIR="$HOME/Downloads"
-    fi
-fi
-
-# ── VAULT_DIR (optionnel, seulement si Obsidian configuré) ──────
-if [ -z "${VAULT_DIR:-}" ]; then
-    # Défaut : vide ; les scripts qui en ont besoin doivent vérifier avant utilisation
-    VAULT_DIR=""
-fi
-
-export OS_KIND CLAUDIA_HOME CLAUDIA_STATE DOWNLOADS_DIR VAULT_DIR
+export OS_KIND CONTEXT_DIR DOWNLOADS_DIR

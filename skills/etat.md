@@ -1,50 +1,19 @@
----
-description: Regarde où on en est sur le projet en cours et met à jour la note d'avancement.
----
-
-# /etat — Où on en est
-
-Sert à retrouver le fil d'un projet : ce qui a été fait, ce qui reste, la prochaine étape. Le fichier s'appelle `ETAT.md` par convention — Claudia le pose dans le dossier du projet.
-
-## Préparation
-
-```bash
-source "$CLAUDIA_HOME/lib/paths.sh"
-```
-
+Affiche et gère le fichier d'état (ETAT.md) du projet courant.
 ## Comportement
-
-**Repérer le projet actif :**
-
-```bash
-pwd
-```
-
-Le dossier où on est = le projet actif.
-
-**Vérifier si le projet est marqué « sensible » :**
-
-Regarder dans `$CLAUDIA_HOME/profil.md` ou `$CLAUDIA_HOME/core.md` si des projets sont marqués comme sensibles (interdiction de sauvegarder à la place de la personne).
-
-- Si oui → lire le fichier d'avancement mais ne rien modifier ni sauvegarder. Se contenter d'afficher.
-
-**Si `ETAT.md` existe dans le dossier :**
-
-1. Lire et afficher son contenu.
-2. Proposer : *« Tu veux que je le mette à jour avec ce qu'on vient de faire ? »*
-3. Si oui → mettre à jour les sections concernées sans effacer les décisions déjà notées.
-
-**Si `ETAT.md` est absent :**
-
-1. Lire le modèle si présent : `$CLAUDIA_HOME/templates/etat-template.md`
-2. Explorer le dossier pour remplir (lecture du README si présent, listing des fichiers, contexte du projet dans `$CLAUDIA_HOME/contexts/ctx-[projet].md`)
-3. Écrire `ETAT.md` dans le dossier avec du concret, pas des trous à remplir
-4. Le signaler : *« J'ai posé un fichier `ETAT.md` dans le dossier — c'est notre mémoire du projet. »*
-
-Ne rien sauvegarder à distance sans demander, sauf si la personne a activé les sauvegardes automatiques pour ce projet.
-
-## Arguments
-
-- Sans argument → comportement par défaut
-- `update` → forcer la mise à jour même si récent
-- `create` → forcer la création (écrase l'existant, demander confirmation avant)
+Variable : `CTX="$(cat "$HOME/.claude/context-dir" 2>/dev/null || echo "$HOME/dev/claude-context")"`.
+**Déterminer le projet actif :** le repo git dans le cwd (`basename "$(git rev-parse --show-toplevel 2>/dev/null || pwd)"`).
+**Vérifier si le projet est en lecture seule** : consulter `$CTX/PROJECTS.md` (et `core.md`, section « Autonomie ») — un projet marqué lecture seule / commit interdit ne doit jamais recevoir de fichier ni de commit.
+- Projet en lecture seule → lire `$CTX/etat/[projet].md` et afficher son contenu. Ne jamais créer ni modifier de fichier dans le repo, ne jamais committer. Si le fichier d'état n'existe pas, le créer uniquement dans `$CTX/etat/`.
+**Si `ETAT.md` existe dans le cwd (projets modifiables) :**
+1. Lire et afficher son contenu complet.
+2. Proposer une mise à jour : « Mettre à jour ETAT.md avec la session courante ? (résumé, décisions, prochaine étape) »
+3. Si confirmé → mettre à jour les sections pertinentes sans effacer les décisions architecturales existantes.
+**Si `ETAT.md` est absent (projets modifiables) :**
+1. Lire le template `$CTX/templates/etat-template.md` (s'il manque, utiliser les sections : Dernière session, En cours, Prochaine étape, Décisions architecturales, Déploiement).
+2. Explorer le repo pour le remplir : `git log --oneline -10`, `ls`, `README.md`, et le module `$CTX/contexts/ctx-[projet].md` s'il existe.
+3. Générer un `ETAT.md` complet et réaliste (pas de placeholders vides) dans le cwd.
+4. Committer : `git add ETAT.md && git commit -m "chore: add ETAT.md"`.
+**Arguments :** `$ARGUMENTS`
+- Sans argument → comportement par défaut ci-dessus
+- `update` → forcer la mise à jour même si le fichier est récent
+- `create` → forcer la création (écraser si existant, après confirmation)

@@ -1,65 +1,15 @@
-# contexts/ — Modules de context projet
+# contexts/ — Modules de context
+Modules `ctx-[nom].md` chargés selon le projet actif (table « Modules context » de `core.md`), pour ne pas charger tout le context à chaque session.
 
-Ce dossier contient les modules de context chargés selon le projet actif.
-
-## Principe
-
-`core.md` est chargé à chaque session. Les modules `ctx-*.md` sont chargés **à la demande** ou **automatiquement** selon le `cwd` courant (défini dans la table "Modules context" de `core.md`).
-
-Avantage : au lieu de charger 20 000 tokens à chaque session, seul le context pertinent est injecté.
-
-## Syntaxe dans core.md
-
-```markdown
-## Modules context
-
-| cwd | Modules à charger |
-|---|---|
-| `~/dev/mon-projet/` | ctx-dev + ctx-mon-projet |
-| `~/dev/autre-projet/` | ctx-dev + ctx-autre-projet |
-| fallback | attendre `/ctx [module]` |
-```
-
-## Créer un nouveau module
-
-1. Créer `contexts/ctx-[nom].md` dans ``$CLAUDIA_HOME/contexts/``
-2. Y mettre uniquement les infos nécessaires pour ce projet/contexte
-3. Ajouter une ligne dans la table "Modules context" de `core.md`
-4. Optionnel : sauvegarder en ligne si l'auto-sauvegarde est activée
-
-## Modules fournis
-
-Aucun module par défaut. Les templates de modules dev/prof sont dans `templates/optional/` — à copier ici si tu en as l'usage.
-
-## Modules à créer selon ton profil
-
-Exemples courants :
-- `ctx-[projet].md` — état, stack, accès, commandes clés pour chaque projet actif
-- `ctx-homeserver.md` — si tu as un serveur ou un homelab
-- `ctx-finance.md` — si tu veux que Claude gère un suivi financier
-- `ctx-professor.md` — si tu utilises le mode professeur (cours Obsidian)
-
-## Format recommandé pour un module projet
-
-```markdown
-# ctx-[projet].md — [Nom du projet]
-
-## État actuel
-[une ligne : où en est le projet, accès si déployé]
-
-## Stack
-[technologies principales]
-
-## Commandes clés
-- Build : `[commande]`
-- Deploy : `[commande]`
-- Logs : `[commande]`
-
-## Fichiers importants
 | Fichier | Rôle |
 |---|---|
-| `src/` | ... |
+| `ctx-dev.md` | Règles de code, actif sur tout projet de code (versionné, ne pas modifier : les écarts vont dans `CLAUDE.local.md`) |
+| `ctx-projet.template.md` | Modèle à copier pour un nouveau module |
+| `ctx-[projet].md` | Stack, commandes, pièges d'un projet précis (à créer, ignoré par git) |
 
-## Règles spécifiques au projet
-[overrides ou règles supplémentaires par rapport à ctx-dev.md]
-```
+## Créer un module
+1. Copier `ctx-projet.template.md` en `contexts/ctx-[nom du dossier du projet].md` : le nom du dossier suffit à le router, aucune ligne à ajouter dans `core.md`
+2. Y mettre uniquement ce qui est utile à ce projet
+3. Erreurs propres au projet → ce module, jamais `CLAUDE.local.md`
+
+Autres modules courants : infra/homelab, base de données, déploiement, client/entreprise.
