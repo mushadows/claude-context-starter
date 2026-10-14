@@ -3,7 +3,7 @@ Template de contexte persistant pour Claude Code : profil, règles de code, proj
 
 ## Installation
 ```bash
-git clone <URL-DU-REPO> ~/dev/claude-context
+git clone https://github.com/mushadows/claude-context-starter.git ~/dev/claude-context
 bash ~/dev/claude-context/install.sh            # ajouter --plugins pour les plugins recommandés
 cd ~ && claude                                   # première session : interview (8 questions max)
 ```
