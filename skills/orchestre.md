@@ -1,3 +1,6 @@
+---
+description: "Orchestration multi-agents : décompose, délègue en parallèle, vérifie, synthétise"
+---
 # /orchestre — Orchestration multi-agents (chef d'orchestre)
 Découpe une tâche complexe en sous-tâches, les délègue à des subagents en parallèle avec des briefings rigoureux, vérifie les résultats et synthétise. **Refuse la parallélisation si elle n'apporte rien** — c'est un chef d'orchestre, pas un dispatcher aveugle.
 **Argument :** `$ARGUMENTS` — description libre de la tâche.

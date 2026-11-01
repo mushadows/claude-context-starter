@@ -1,3 +1,6 @@
+---
+description: "Audit complet d'un repo de contexte (audit léger : /check)"
+---
 # /context-check — Audit complet d'un repo de contexte
 Audit multi-axes d'un repo de contexte Claude Code entier : correction, cohérence structurelle, coût token, redondance, portabilité, sécurité. Dispatche 4 subagents en parallèle (un par catégorie de fichiers), synthétise, priorise — ne corrige rien tout seul, propose un plan de correction validé avant d'éditer.
 **Arguments :** `$ARGUMENTS` — optionnel, chemin du repo à auditer (défaut le dossier du repo de contexte (contenu de `~/.claude/context-dir`)). Fonctionne sur tout repo de contexte structuré en `core.md`/`CLAUDE.md` + dossier de modules + dossier de skills + automatisation — adapter les 4 périmètres à la structure réelle du repo cible si elle diffère.

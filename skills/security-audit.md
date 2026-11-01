@@ -1,3 +1,6 @@
+---
+description: "Audit sécurité DevSecOps d'une app web (code et service déployé)"
+---
 # /security-audit — Audit sécurité DevSecOps
 Audit défensif d'une app web (code source + service déployé) contre les classes de vulnérabilités les plus courantes : auth uniquement côté client, secrets embarqués dans le bundle, endpoints non protégés, etc.
 **Argument :** `$ARGUMENTS` — nom du projet ou vide → détecter depuis le cwd. Peut aussi être une URL déployée seule si le code n'est pas disponible localement.

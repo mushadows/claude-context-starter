@@ -1,3 +1,6 @@
+---
+description: "Workflow de déploiement guidé (générique, à adapter par projet)"
+---
 Workflow de déploiement guidé (version générique, à adapter par projet).
 ## Arguments : `$ARGUMENTS`
 Sans argument → projet du cwd. Avec argument → projet nommé.
@@ -5,8 +8,8 @@ Sans argument → projet du cwd. Avec argument → projet nommé.
 ### 1. Identifier la commande de déploiement
 ```bash
 pwd
-grep -iA2 "déploiement\|deploy" ETAT.md 2>/dev/null
-ls deploy.sh Dockerfile docker-compose.yml compose.yml Makefile 2>/dev/null
+grep -iA2 "déploiement\|deploy" ETAT.md || true
+ls deploy.sh Dockerfile docker-compose.yml compose.yml Makefile || true  # "No such file" = absent, pas une erreur
 ```
 Ordre de recherche : section « Déploiement » de l'état projet → module `contexts/ctx-[projet].md` → script `deploy.sh` / cible `make deploy` / `docker compose up -d --build`. Si rien n'est trouvé → demander la commande, puis la noter dans le module ctx du projet. Ne jamais deviner une cible de déploiement.
 ### 2. Vérifier l'état du repo

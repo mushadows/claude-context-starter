@@ -22,16 +22,16 @@
       { "matcher": "", "hooks": [ { "type": "command", "command": "~/.claude/hooks/session-start.sh", "timeout": 10 } ] }
     ],
     "Stop": [
-      { "matcher": "", "hooks": [ { "type": "command", "command": "~/.claude/hooks/stop.sh" } ] }
+      { "matcher": "", "hooks": [ { "type": "command", "command": "~/.claude/hooks/stop.sh", "timeout": 60 } ] }
     ],
     "PreCompact": [
-      { "matcher": "", "hooks": [ { "type": "command", "command": "~/.claude/hooks/pre-compact.sh" } ] }
+      { "matcher": "", "hooks": [ { "type": "command", "command": "~/.claude/hooks/pre-compact.sh", "timeout": 30 } ] }
     ],
-    "PostCompact": [
-      { "matcher": "", "hooks": [ { "type": "command", "command": "~/.claude/hooks/post-compact.sh" } ] }
+    "SessionStart": [
+      { "matcher": "compact", "hooks": [ { "type": "command", "command": "~/.claude/hooks/post-compact.sh", "timeout": 10 } ] }
     ],
     "PostToolUse": [
-      { "matcher": "Edit|Write", "hooks": [ { "type": "command", "command": "~/.claude/hooks/post-edit.sh" } ] }
+      { "matcher": "Edit|Write", "hooks": [ { "type": "command", "command": "~/.claude/hooks/post-edit.sh", "timeout": 60 } ] }
     ]
   }
 }

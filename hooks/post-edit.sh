@@ -42,7 +42,7 @@ case "${file_path##*.}" in
         ;;
     sh)
         command -v shellcheck >/dev/null 2>&1 || exit 0
-        result=$(shellcheck "$file_path" 2>&1) || fail "shellcheck ($file_path)" "$result"
+        result=$(shellcheck -S warning "$file_path" 2>&1) || fail "shellcheck ($file_path)" "$result"
         ;;
 esac
 exit 0

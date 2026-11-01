@@ -32,7 +32,7 @@ output_file="$STATE_DIR/${date_str}-${session_id}.md"
     echo ""
     if [ -n "$transcript_path" ] && [ -f "$transcript_path" ]; then
         echo "## Transcript (200 dernières lignes)"
-        tail -n 200 "$transcript_path"
+        tail -n 200 "$transcript_path" | tail -c 200000  # lignes JSONL parfois énormes : plafond 200 Ko
     else
         echo "(transcript non disponible)"
     fi

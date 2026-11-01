@@ -1,3 +1,6 @@
+---
+description: "Clôture de session : résumé, mise à jour de l'état projet, push des repos modifiés"
+---
 Clôture de session : résumé, mise à jour de l'état projet, capture des décisions, push des repos modifiés.
 ## Étapes (dans cet ordre)
 Variable utilisée partout : `CTX="$(cat "$HOME/.claude/context-dir" 2>/dev/null || echo "$HOME/dev/claude-context")"`.

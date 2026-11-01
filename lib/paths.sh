@@ -1,3 +1,4 @@
+# shellcheck shell=bash
 # paths.sh — helper multi-OS (Linux / Git Bash Windows), à sourcer (jamais exécuter).
 #
 # Usage : source ~/dev/claude-context/lib/paths.sh

@@ -17,7 +17,7 @@ claude-context/
 ├── INTERVIEW.md            configuration initiale
 ├── contexts/               ctx-dev.md + un module par projet
 ├── skills/                 slash commands (symlinks vers ~/.claude/commands/)
-├── hooks/                  session-start, stop, pre/post-compact, post-edit
+├── hooks/                  session-start, stop, pre-compact, post-compact (SessionStart/compact), post-edit
 ├── lib/paths.sh            chemins multi-OS
 ├── templates/              PROJECTS, CONF, CLAUDE.local, etat
 ├── RULES_GENERIC.md        conventions de code communes
@@ -38,6 +38,7 @@ Générés par l'interview, **ignorés par git** : `CLAUDE.local.md` (ton profil
 | `/deploy [projet]` | déploiement guidé |
 | `/today` | récap du jour |
 | `/security-audit`, `/pentest-self` | audit sécurité statique / test d'intrusion sur tes propres services |
+| `/maintenance` | checklist système mensuelle (Linux, lecture seule) |
 | `/refresh` | pull + resynchronisation (hooks, skills, settings) |
 
 ## Options

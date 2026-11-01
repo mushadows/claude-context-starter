@@ -30,7 +30,12 @@ done
 CONTEXT_DIR="${CONTEXT_DIR:-$HOME/dev/claude-context}"
 
 LOCK_DIR="$HOME/.local/share/claude"
-SESSION_LOCK="$LOCK_DIR/session-${CLAUDE_CODE_SESSION_ID:-$(date +%Y%m%d)}"
+# Sans CLAUDE_CODE_SESSION_ID : id lu dans le JSON stdin, sinon tranche horaire (jamais un lock figé toute la journée)
+SID="${CLAUDE_CODE_SESSION_ID:-}"
+if [ -z "$SID" ] && [ -z "${CLAUDE_HOOK_BG:-}" ] && command -v jq >/dev/null 2>&1; then
+    SID=$(printf '%s' "$_input" | jq -r '.session_id // empty' 2>/dev/null || true)
+fi
+SESSION_LOCK="$LOCK_DIR/session-${SID:-h$(date +%Y%m%d%H)}"
 LOG_FILE="$LOCK_DIR/last-session.log"
 mkdir -p "$LOCK_DIR"
 

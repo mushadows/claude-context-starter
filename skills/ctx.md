@@ -1,3 +1,6 @@
+---
+description: "Charge manuellement un module de contexte dans la session courante"
+---
 Charge manuellement un module de context dans la session courante.
 ## Source des modules
 Dossier : `le dossier `contexts/` du repo de contexte`, fichiers `ctx-[nom].md`.

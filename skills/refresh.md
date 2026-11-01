@@ -1,3 +1,6 @@
+---
+description: "Pull du repo de contexte + resynchronisation + détection de l'OS"
+---
 # /refresh — Pull + sync + détection environnement
 Met à jour le repo context, redéploie skills/hooks/settings, et détecte l'OS. À lancer en début de session ou avant `/today`. Pur sync, aucun jugement de qualité (`/check`) ni liste de tâches (`/today`).
 À la demande uniquement — ne jamais lancer automatiquement.
@@ -19,11 +22,7 @@ case "$result" in *"Already up to date"*|*"Déjà à jour"*) echo "Repo à jour.
 Afficher en une ligne : `🔄 Repo à jour` ou `🔄 Mis à jour : [ce qui a changé]`. Si des liens cassés ont été nettoyés → ajouter `🔧 [N] skill(s) cassé(s) supprimé(s)`.
 ### Étape 2 — Détection de l'OS
 ```bash
-case "${OSTYPE:-}" in
-  msys*|cygwin*|win*) echo "OS: windows (Git Bash)";;
-  darwin*) echo "OS: macos";;
-  *) echo "OS: linux";;
-esac
+source "$CTX/lib/paths.sh" && echo "OS: $OS_KIND"
 ```
 Retenir le résultat pour la session (chemins, commandes). Ne l'afficher que si inattendu.
 ### Sortie

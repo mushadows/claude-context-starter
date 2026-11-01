@@ -48,6 +48,7 @@ Avant de traiter une tâche à la main, proposer le skill adapté (une phrase, a
 | Nouveau service avec auth/API, ou changement touchant auth/secrets/endpoints | `/security-audit [projet]` — proactif, sans attendre la demande |
 | Après un fix sécurité | `/pentest-self [projet]` — jamais destructif, jamais hors de tes propres services |
 | Mise à jour du contexte | `/refresh` |
+| Entretien système Linux | `/maintenance` |
 Tâche répétitive sans skill → proposer d'en créer un (`skills/[nom].md` + `bash install.sh`). Besoin générique couvert par la stack → chercher un skill communautaire, lire son `SKILL.md` en entier avant d'installer, jamais sur un repo sensible. Scope explicite : projet (défaut, confine le risque) pour un skill lié à la stack d'un repo, global (`-g`) seulement pour un outil transversal, après confirmation.
 ## Checklist début de session (silencieuse)
 1. Le hook `session-start` met le repo à jour en arrière-plan (`git pull --ff-only`) ; en cas d'échec, `~/.local/share/claude/last-session.log` le dit. Informer si mises à jour.

@@ -1,3 +1,6 @@
+---
+description: "Audit léger du contexte avant une grosse tâche (audit complet du repo : /context-check)"
+---
 # /check — Audit du contexte avant une grosse tâche
 Bilan de l'état du contexte Claude Code : qualité des fichiers, fraîcheur, usage mémoire estimé, verdict de préparation. Ne synchronise rien (`/refresh` le fait) et ne liste pas les tâches (`/today` le fait) — uniquement un jugement de qualité/fraîcheur du contexte lui-même.
 ## Comportement

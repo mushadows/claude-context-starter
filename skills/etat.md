@@ -1,3 +1,6 @@
+---
+description: "Affiche et gère le fichier d'état du projet courant"
+---
 Affiche et gère le fichier d'état (ETAT.md) du projet courant.
 ## Comportement
 Variable : `CTX="$(cat "$HOME/.claude/context-dir" 2>/dev/null || echo "$HOME/dev/claude-context")"`.

@@ -30,15 +30,23 @@ for _p in "$HOOK_DIR/../lib/paths.sh" "${_marker:+$_marker/lib/paths.sh}" "$HOME
 done
 CONTEXT_DIR="${CONTEXT_DIR:-$HOME/dev/claude-context}"
 
+# Jamais de prompt ni de blocage réseau en fin de tour
+export GIT_TERMINAL_PROMPT=0
+export GIT_SSH_COMMAND="ssh -o BatchMode=yes -o ConnectTimeout=5"
+
 AUTOSYNC="$CONTEXT_DIR/.autosync"
 [ -f "$AUTOSYNC" ] || exit 0
 [ -d "$CONTEXT_DIR/.git" ] || exit 0
 [ -n "$(git -C "$CONTEXT_DIR" status --porcelain 2>/dev/null)" ] || exit 0
 
 git -C "$CONTEXT_DIR" add -A 2>/dev/null || true
-git -C "$CONTEXT_DIR" commit --quiet -m "context: session auto $(date +%Y-%m-%d)" 2>/dev/null || true
+if ! git -C "$CONTEXT_DIR" commit --quiet -m "context: session auto $(date +%Y-%m-%d)" 2>/dev/null; then
+    echo "[stop.sh] commit refusé (hook git, secret détecté ?) — arbre laissé sale, à vérifier" >&2
+    exit 0
+fi
 
 if grep -qx "push" "$AUTOSYNC" 2>/dev/null; then
+    git -C "$CONTEXT_DIR" pull --rebase --autostash --quiet 2>/dev/null || true
     git -C "$CONTEXT_DIR" push --quiet 2>/dev/null \
         || echo "[stop.sh] push impossible — vérifier la connexion" >&2
 fi

@@ -1,3 +1,6 @@
+---
+description: "Récap des tâches du jour"
+---
 # /today — Récap des tâches du jour
 Agrège l'état de tous les projets actifs pour donner un plan d'action immédiat. Ne touche pas au sync des repos/skills (voir `/refresh`).
 À la demande uniquement — ne jamais lancer automatiquement.

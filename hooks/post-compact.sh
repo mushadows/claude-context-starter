@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
-# Hook PostCompact — rappel injecté après la compaction du contexte.
+# Hook SessionStart (matcher "compact") — rappel injecté dans le contexte de Claude après compaction.
+# (L'événement PostCompact jette systemMessage : aucun canal vers le contexte.)
 
 set -euo pipefail
 read -r -d '' _stdin 2>/dev/null || true
@@ -26,6 +27,12 @@ for _p in "$HOOK_DIR/../lib/paths.sh" "${_marker:+$_marker/lib/paths.sh}" "$HOME
 done
 CONTEXT_DIR="${CONTEXT_DIR:-$HOME/dev/claude-context}"
 
-# Pas de guillemet ni de backslash dans MSG (JSON écrit à la main) ; "\\n" = saut de ligne JSON
-MSG="Contexte compacté. Avant de continuer :\\n1. Mettre à jour etat/[projet].md dans ${CONTEXT_DIR} (sections En cours + Dernière session) pour le projet courant\\n2. Noter dans le module contexts/ctx-[projet].md les décisions et contraintes de cette session si elles manquent\\nPuis reprendre le travail normalement."
-printf '{"systemMessage":"%s"}' "$MSG"
+MSG="Contexte compacté. Avant de continuer :\n1. Mettre à jour etat/[projet].md dans ${CONTEXT_DIR} (sections En cours + Dernière session) pour le projet courant\n2. Noter dans le module contexts/ctx-[projet].md les décisions et contraintes de cette session si elles manquent\nPuis reprendre le travail normalement."
+# MSG contient des \n littéraux -> vrais retours ligne avant l'encodage JSON
+TXT=$(printf '%b' "$MSG")
+if command -v jq >/dev/null 2>&1; then
+    jq -n --arg t "$TXT" '{hookSpecificOutput:{hookEventName:"SessionStart",additionalContext:$t}}'
+else
+    # Sans jq : pas de guillemet ni de backslash dans MSG (JSON écrit à la main)
+    printf '{"hookSpecificOutput":{"hookEventName":"SessionStart","additionalContext":"%s"}}' "$MSG"
+fi

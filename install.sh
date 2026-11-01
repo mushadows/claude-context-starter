@@ -5,7 +5,7 @@
 #   --quiet    sortie réduite à une ligne (utilisé par le hook session-start)
 #   --plugins  installe aussi quelques plugins Claude Code externes (opt-in)
 
-set -eu
+set -euo pipefail
 
 CONTEXT_DIR=$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)
 CLAUDE_DIR="$HOME/.claude"
@@ -116,9 +116,22 @@ cur = json.load(open(sys.argv[1], encoding="utf-8"))
 tpl = json.load(open(sys.argv[2], encoding="utf-8"))
 changed = False
 hooks = cur.setdefault("hooks", {})
+# Migration : post-compact.sh vivait sous PostCompact (message jeté), il est désormais sous SessionStart/compact
+old = hooks.get("PostCompact", [])
+kept = [e for e in old if not any("post-compact.sh" in h.get("command", "") for h in e.get("hooks", []))]
+if len(kept) != len(old):
+    changed = True
+    if kept: hooks["PostCompact"] = kept
+    else: del hooks["PostCompact"]
 for event, entries in tpl.get("hooks", {}).items():
     lst = hooks.setdefault(event, [])
     have = {h.get("command") for e in lst for h in e.get("hooks", [])}
+    # Timeouts du template appliqués aux commandes déjà présentes
+    tmo = {h.get("command"): h.get("timeout") for e in entries for h in e.get("hooks", [])}
+    for e in lst:
+        for h in e.get("hooks", []):
+            if tmo.get(h.get("command")) and h.get("timeout") != tmo[h.get("command")]:
+                h["timeout"] = tmo[h["command"]]; changed = True
     for e in entries:
         if not all(h.get("command") in have for h in e.get("hooks", [])):
             lst.append(e)
@@ -158,6 +171,10 @@ PY
     fi
     rm -f "$MERGED"
 fi
+# Liens morts : skill supprimé de skills/ mais encore lié dans commands/
+for l in "$CLAUDE_DIR/commands/"*.md; do
+    if [ -L "$l" ] && [ ! -e "$l" ]; then rm -f "$l"; warn "lien mort retiré : $(basename "$l")"; fi
+done
 # Purge des vieux backups (install.sh tourne à chaque mise à jour du repo)
 find "$CLAUDE_DIR" -maxdepth 1 -name "settings.json.bak-*" -mtime +30 -delete 2>/dev/null || true
 find "$CLAUDE_DIR/hooks" "$CLAUDE_DIR/commands" -maxdepth 1 -name "*.bak-*" -mtime +30 -delete 2>/dev/null || true
@@ -174,8 +191,10 @@ else
         claude plugin marketplace add "$repo" >/dev/null 2>&1 || warn "marketplace $repo : échec (réseau ?)"
     done
     fail=0
+    installed=$(claude plugin list 2>/dev/null || true)
     for p in ponytail@ponytail playwright@claude-plugins-official security-guidance@claude-plugins-official frontend-design@claude-plugins-official; do
-        claude plugin install "$p" >/dev/null 2>&1 || fail=$((fail+1))
+        # Déjà installé : on ne réinstalle pas (idempotence, pas de réseau inutile)
+        printf '%s' "$installed" | grep -qF "$p" || claude plugin install "$p" >/dev/null 2>&1 || fail=$((fail+1))
         claude plugin enable "$p" >/dev/null 2>&1 || true
     done
     if [ $fail -gt 0 ]; then err "$fail plugin(s) en échec d'installation"; else ok "plugins installés et activés"; fi
