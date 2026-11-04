@@ -64,6 +64,8 @@ Tâche répétitive sans skill → proposer d'en créer un (`skills/[nom].md` + 
 - Édition manuelle d'un fichier de config d'outil : le relire après le restart du service (certains restarts effacent silencieusement des clés)
 - Docker : build avec layer cache suspect (fonctions ajoutées, résultat périmé) → `--no-cache`
 - Ne jamais déplacer automatiquement des dossiers de `~/` sans confirmation : signaler seulement
+- `fetch(…, { keepalive: true })` avec un corps > 64 Ko échoue (`TypeError: Failed to fetch`, plafond du navigateur) : avec un `.catch(() => {})` muet, une sauvegarde peut ne jamais rien écrire sans que personne ne le voie → `keepalive` seulement pour de petits corps (ou `sendBeacon`), et vérifier la ligne côté serveur après un essai réel
+- Hook `PostCompact` : son `systemMessage` est jeté (aucun canal vers le contexte de Claude) → réinjecter après compaction via `SessionStart` avec `"matcher": "compact"` et `additionalContext`
 - Erreur transversale → `CLAUDE.local.md` ; erreur propre à un projet → `ctx-[projet].md`
 ## Fichiers context
 `CLAUDE.local.md` (profil, habitudes, erreurs) · `CONF.md` (machine, outils) · `PROJECTS.md` (projets) · `RULES_GENERIC.md` / `RULES_LANGAGES.md` (conventions de code, chargées via `ctx-dev`) · `etat/` (états par projet)
