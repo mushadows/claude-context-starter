@@ -8,8 +8,13 @@ Agrège l'état de tous les projets actifs pour donner un plan d'action immédia
 **Arguments :** `$ARGUMENTS` (ignorés)
 Variable : `CTX="$(cat "$HOME/.claude/context-dir" 2>/dev/null || echo "$HOME/dev/claude-context")"`.
 ### Étape 1 — Lire les sources en parallèle
+D'abord lister les fichiers d'état à lire, **sans ouvrir les exclus** (marqueur `exclu de /today` en 2e ligne — inutile de les charger) :
+```bash
+awk 'FNR==2 && !/exclu de \/today/ {print FILENAME}' "$CTX"/etat/*.md
+```
+Puis lire simultanément :
 - `$CTX/PROJECTS.md` — état de chaque projet (dettes git, blockers signalés)
-- `$CTX/etat/*.md` — état détaillé et tâches de chaque projet
+- les seuls fichiers d'état listés ci-dessus. Pour un fichier long (> 30 Ko), lire d'abord ses titres (`grep -n '^##'`) puis seulement les sections de reprise/statut les plus récentes, pas l'historique.
 ### Étape 2 — Extraire les items actionnables
 Ignorer tout fichier d'état dont la 2e ligne contient `exclu de /today` (projet en pause).
 **Par projet :**
